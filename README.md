@@ -19,16 +19,19 @@ This application provides a modular workspace to manage projects, design simulat
 
 ## Getting started
 
-1. Clone the repository
+1. **Clone the repository**:
   ```bash
 git clone https://github.com/orlandoisepic/precice-gui-prototype.git
 cd precice-gui-prototype
 ```
-2. Open the project
+2. **Open the project**:
+
 Open the folder in Xcode or double click the `precice-gui-prototype.xcodeproj` file
-3. Build and run
+3. **Build and run**:
+
 Select your Mac as the run destination and hit ⌘R (or the Play button) to build and launch the application.
-4. Have fun!
+4. **Have fun**!
+
 Open any app and create a new project from the sidebar :)
 
 ## Apps
