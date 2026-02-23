@@ -21,7 +21,7 @@ This application provides a modular workspace to manage projects, design simulat
 
 1. Clone the repository
   ```bash
-git clone https://github.com/yourusername/precice-gui-prototype.git
+git clone https://github.com/orlandoisepic/precice-gui-prototype.git
 cd precice-gui-prototype
 ```
 2. Open the project
