@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		555E6BE32F4C757500B03DD6 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 555E6B652F4C757500B03DD6 /* .gitignore */; };
+		55EDA5FA2F4CC51100EAE46F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 55EDA5F92F4CC51100EAE46F /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		555E6B652F4C757500B03DD6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		5575BC7A2F34AF69001EEDB1 /* precice-gui-prototype.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "precice-gui-prototype.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		55EDA5F92F4CC51100EAE46F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -45,6 +47,7 @@
 		5575BC712F34AF69001EEDB1 = {
 			isa = PBXGroup;
 			children = (
+				55EDA5F92F4CC51100EAE46F /* README.md */,
 				555E6B652F4C757500B03DD6 /* .gitignore */,
 				55B9DB9A2F3CC578000693A4 /* docs */,
 				5575BC7B2F34AF69001EEDB1 /* Products */,
@@ -126,6 +129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				555E6BE32F4C757500B03DD6 /* .gitignore in Resources */,
+				55EDA5FA2F4CC51100EAE46F /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
