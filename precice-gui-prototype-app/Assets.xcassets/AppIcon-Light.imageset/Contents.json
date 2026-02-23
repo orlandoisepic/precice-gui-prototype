@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "precice-logo-v2-iOS-Default-1024x1024@1x.png",
+      "idiom" : "mac"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

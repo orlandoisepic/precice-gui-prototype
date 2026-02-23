@@ -1,0 +1,6 @@
+
+Run
+
+> pyinstaller --onefile --add-data "schemas:precicecasegenerate/schemas" --add-data "templates:precicecasegenerate/templates" cli.py
+
+to obtain the correct precice-case-generate executable
