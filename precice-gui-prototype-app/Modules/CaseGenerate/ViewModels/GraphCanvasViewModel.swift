@@ -16,10 +16,10 @@ class GraphCanvasViewModel: ObservableObject {
     @Published var detachedFiles:Set<URL> = []
     
         // MARK: - Interaction State
-    @Published var draggingStartPatch: Patch? = nil
+    @Published var draggingStartLocationNode: LocationNode? = nil
     @Published var draggingCurrentPos: CGPoint = .zero
-        // Patch that we are hovering over
-    @Published var hoveredPatchID: UUID? = nil
+        // Location node that we are hovering over
+    @Published var hoveredLocationNodeID: UUID? = nil
     
         // MARK: - Animation State
     @Published var dyingEdgeIDs: Set<UUID> = []
@@ -27,7 +27,7 @@ class GraphCanvasViewModel: ObservableObject {
     
         // MARK: - Constants
     let nodeRadius: CGFloat = 60
-    let patchHitThreshold: CGFloat = 40
+    let locationNodeHitThreshold: CGFloat = 40
     
         // MARK: - File system management
         // TODO: This should maybe live somewhere under Core/

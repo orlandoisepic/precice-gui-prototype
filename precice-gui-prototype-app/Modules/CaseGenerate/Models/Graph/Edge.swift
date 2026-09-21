@@ -7,8 +7,8 @@ struct Edge: Identifiable, Codable {
     let id: UUID
     
     // The direction is implied: FROM source TO target
-    var sourcePatchId: UUID
-    var targetPatchId: UUID
+    var sourceLocationNodeId: UUID
+    var targetLocationNodeId: UUID
     
     // Attributes
     var data: String            // "The data that is exchanged"
@@ -16,15 +16,15 @@ struct Edge: Identifiable, Codable {
     var strength: EdgeStrength  // "Weak" or "Strong"
     
     init(id: UUID = UUID(),
-         sourcePatchId: UUID,
-         targetPatchId: UUID,
+         sourceLocationNodeId: UUID,
+         targetLocationNodeId: UUID,
          data: String = "Data",
          dataType: DataType? = nil,
          strength: EdgeStrength = .weak) {
         
         self.id = id
-        self.sourcePatchId = sourcePatchId
-        self.targetPatchId = targetPatchId
+        self.sourceLocationNodeId = sourceLocationNodeId
+        self.targetLocationNodeId = targetLocationNodeId
         self.data = data
         self.dataType = dataType
         self.strength = strength

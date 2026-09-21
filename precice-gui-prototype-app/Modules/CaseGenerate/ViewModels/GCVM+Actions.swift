@@ -25,9 +25,9 @@ extension GraphCanvasViewModel {
             dyingParticipantIDs.insert(id)
             
                 // Also mark connected edges as dying immediately so they fade out
-            let nodePatchIds = Set(participant.patches.map { $0.id })
+            let nodeLocationNodeIds = Set(participant.locationNodes.map { $0.id })
             for edge in edges {
-                if nodePatchIds.contains(edge.sourcePatchId) || nodePatchIds.contains(edge.targetPatchId) {
+                if nodeLocationNodeIds.contains(edge.sourceLocationNodeId) || nodeLocationNodeIds.contains(edge.targetLocationNodeId) {
                     dyingEdgeIDs.insert(edge.id)
                 }
             }
@@ -41,9 +41,9 @@ extension GraphCanvasViewModel {
             if self.participants.contains(where: { $0.id == id }) {
                 
                     // Remove edges
-                let nodePatchIds = Set(participant.patches.map { $0.id })
+                let nodeLocationNodeIds = Set(participant.locationNodes.map { $0.id })
                 self.edges.removeAll { edge in
-                    nodePatchIds.contains(edge.sourcePatchId) || nodePatchIds.contains(edge.targetPatchId)
+                    nodeLocationNodeIds.contains(edge.sourceLocationNodeId) || nodeLocationNodeIds.contains(edge.targetLocationNodeId)
                 }
                 
                     // Remove participant
@@ -59,81 +59,81 @@ extension GraphCanvasViewModel {
         if let index = participants.firstIndex(where: { $0.id == id }) {
             participants[index].position = newPosition
 
-            updateDynamicPatchAngles(for: id)
+            updateDynamicLocationNodeAngles(for: id)
         }
     }
     
-        // MARK: - Patches
-    func addPatch(to participantId: UUID, angle: Double) {
+        // MARK: - LocationNodes
+    func addLocationNode(to participantId: UUID, angle: Double) {
         guard let index = participants.firstIndex(where: { $0.id == participantId }) else { return }
-        let newPatch = Patch(id: UUID(), name: "Port", angle: angle, parentId: participantId)
-        participants[index].patches.append(newPatch)
+        let newLocationNode = LocationNode(id: UUID(), name: "Port", angle: angle, parentId: participantId)
+        participants[index].locationNodes.append(newLocationNode)
         triggerAutoSave()
     }
     
-    func deletePatch(_ patch: Patch) {
-        edges.removeAll { $0.sourcePatchId == patch.id || $0.targetPatchId == patch.id }
-        if let index = participants.firstIndex(where: { $0.id == patch.parentId }) {
-            participants[index].patches.removeAll(where: { $0.id == patch.id })
+    func deleteLocationNode(_ locationNode: LocationNode) {
+        edges.removeAll { $0.sourceLocationNodeId == locationNode.id || $0.targetLocationNodeId == locationNode.id }
+        if let index = participants.firstIndex(where: { $0.id == locationNode.parentId }) {
+            participants[index].locationNodes.removeAll(where: { $0.id == locationNode.id })
         }
         triggerAutoSave()
     }
     
         // MARK: - Edge dragging
-    func startDraggingConnection(from patch: Patch, at position: CGPoint) {
-        draggingStartPatch = patch
+    func startDraggingConnection(from locationNode: LocationNode, at position: CGPoint) {
+        draggingStartLocationNode = locationNode
         draggingCurrentPos = position
     }
     
     func updateDraggingPosition(_ position: CGPoint) {
         draggingCurrentPos = position
-        if let startPatch = draggingStartPatch, let parentId = findOwnerOfPatch(startPatch.id) {
+        if let startLocationNode = draggingStartLocationNode, let parentId = findOwnerOfLocationNode(startLocationNode.id) {
             updateAnglesForNode(parentId) // Magnetic look-at
         }
         
-        if let startPatch = draggingStartPatch {
-            let target = findPatch(at: position, excluding: startPatch.id, threshold: self.patchHitThreshold)
+        if let startLocationNode = draggingStartLocationNode {
+            let target = findLocationNode(at: position, excluding: startLocationNode.id, threshold: self.locationNodeHitThreshold)
             
-            if hoveredPatchID != target?.id {
+            if hoveredLocationNodeID != target?.id {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    hoveredPatchID = target?.id
+                    hoveredLocationNodeID = target?.id
                 }
             }
         }
     }
     
     func endDraggingConnection() {
-        if let source = draggingStartPatch,
-           let target = findPatch(at: draggingCurrentPos, excluding: source.id, threshold: self.patchHitThreshold) {
+        if let source = draggingStartLocationNode,
+           let target = findLocationNode(at: draggingCurrentPos, excluding: source.id, threshold: self.locationNodeHitThreshold) {
             addEdge(from: source, to: target)
         }
         
             // Final lock
-        if let source = draggingStartPatch, let id = findOwnerOfPatch(source.id) {
-            updateDynamicPatchAngles(for: id)
+        if let source = draggingStartLocationNode, let id = findOwnerOfLocationNode(source.id) {
+            updateDynamicLocationNodeAngles(for: id)
         }
-        draggingStartPatch = nil
+        draggingStartLocationNode = nil
         
         withAnimation {
-            hoveredPatchID = nil
+            hoveredLocationNodeID = nil
         }
     }
     
-    func addEdge(from source: Patch, to target: Patch) {
-        let newEdge = Edge(sourcePatchId: source.id, targetPatchId: target.id)
+    func addEdge(from source: LocationNode, to target: LocationNode) {
+        let newEdge = Edge(sourceLocationNodeId: source.id, targetLocationNodeId: target.id)
         edges.append(newEdge)
         
             // Update angles
-        if let sOwner = findOwnerOfPatch(source.id) { updateDynamicPatchAngles(for: sOwner) }
-        if let tOwner = findOwnerOfPatch(target.id) { updateDynamicPatchAngles(for: tOwner) }
+        if let sOwner = findOwnerOfLocationNode(source.id) { updateDynamicLocationNodeAngles(for: sOwner) }
+        if let tOwner = findOwnerOfLocationNode(target.id) { updateDynamicLocationNodeAngles(for: tOwner) }
         
         triggerAutoSave()
     }
     // Delete edge
     func triggerEdgeBurnout(forNode nodeId: UUID) {
         guard let node = participants.first(where: { $0.id == nodeId }) else { return }
-        let patchIds = node.patches.map { $0.id }
-        let connectedEdges = edges.filter { patchIds.contains($0.sourcePatchId) || patchIds.contains($0.targetPatchId) }
+        let locationNodeIds = node.locationNodes.map { $0.id }
+        let connectedEdges = edges.filter { locationNodeIds.contains($0.sourceLocationNodeId) || locationNodeIds.contains($0.targetLocationNodeId) }
         for edge in connectedEdges { dyingEdgeIDs.insert(edge.id) }
     }
 }

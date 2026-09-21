@@ -16,7 +16,7 @@ extension ParticipantNodeView {
         }
     }
     
-    func addPatchAtMouseLocation() {
+    func addLocationNodeAtMouseLocation() {
         let center = CGPoint(
             x: viewModel.nodeRadius,
             y: viewModel.nodeRadius
@@ -25,7 +25,7 @@ extension ParticipantNodeView {
         let dy = lastMousePosition.y - center.y
         let angle = atan2(dy, dx)
         
-        viewModel.addPatch(to: participant.id, angle: angle)
+        viewModel.addLocationNode(to: participant.id, angle: angle)
     }
     
     func handleDeletion() {

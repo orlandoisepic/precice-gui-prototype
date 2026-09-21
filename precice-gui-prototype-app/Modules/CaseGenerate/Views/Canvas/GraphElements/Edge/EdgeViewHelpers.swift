@@ -23,18 +23,18 @@ extension EdgeView {
     }
     
     var resolvedEdgeData: ResolvedEdge? {
-        guard let source = findPatchAndNode(id: self.edge.sourcePatchId),
-              let target = findPatchAndNode(id: edge.targetPatchId) else {
+        guard let source = findLocationNodeAndNode(id: self.edge.sourceLocationNodeId),
+              let target = findLocationNodeAndNode(id: edge.targetLocationNodeId) else {
             return nil
         }
         
-        let start = viewModel.getPatchPosition(
+        let start = viewModel.getLocationNodePosition(
             participant: source.node,
-            patch: source.patch
+            locationNode: source.locationNode
         )
-        let end = viewModel.getPatchPosition(
+        let end = viewModel.getLocationNodePosition(
             participant: target.node,
-            patch: target.patch
+            locationNode: target.locationNode
         )
         
         let curve = calculateCurveGeometry(
@@ -48,10 +48,10 @@ extension EdgeView {
         return ResolvedEdge(start: start, end: end, curve: curve)
     }
     
-    private func findPatchAndNode(id: UUID) -> (node: Participant, patch: Patch)? {
+    private func findLocationNodeAndNode(id: UUID) -> (node: Participant, locationNode: LocationNode)? {
         for node in viewModel.participants {
-            if let patch = node.patches.first(where: { $0.id == id }) {
-                return (node, patch)
+            if let locationNode = node.locationNodes.first(where: { $0.id == id }) {
+                return (node, locationNode)
             }
         }
         return nil
@@ -82,9 +82,9 @@ extension EdgeView {
         let midY = (start.y + end.y) / 2
         
         let siblings = viewModel.edges.filter {
-            return ($0.sourcePatchId == edge.sourcePatchId && $0.targetPatchId == edge.targetPatchId) ||
+            return ($0.sourceLocationNodeId == edge.sourceLocationNodeId && $0.targetLocationNodeId == edge.targetLocationNodeId) ||
             (
-                $0.sourcePatchId == edge.targetPatchId && $0.targetPatchId == edge.sourcePatchId
+                $0.sourceLocationNodeId == edge.targetLocationNodeId && $0.targetLocationNodeId == edge.sourceLocationNodeId
             )
         }.sorted(by: { $0.id.uuidString < $1.id.uuidString })
         

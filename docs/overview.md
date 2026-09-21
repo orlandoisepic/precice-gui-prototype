@@ -84,7 +84,7 @@ precice-gui-app
 │       │       ├── EdgeType.swift
 │       │       ├── GraphData.swift
 │       │       ├── Participant.swift
-│       │       └── Patch.swift
+│       │       └── LocationNode.swift
 │       ├── Services                                    # "Programs" that are used in the app
 │       │   ├── CLI
 │       │   │   ├── cli
@@ -120,9 +120,9 @@ precice-gui-app
 │           │   │   │   ├── ParticipantContextMenu.swift                
 │           │   │   │   ├── ParticipantView.swift                       # Main node view
 │           │   │   │   ├── ParticipantViewHelper.swift
-│           │   │   │   └── PatchRing.swift                             # The outside houses the patches
-│           │   │   └── Patch
-│           │   │       └── PatchView.swift
+│           │   │   │   └── LocationNodeRing.swift                             # The outside houses the location nodes
+│           │   │   └── LocationNode
+│           │   │       └── LocationNodeView.swift
 │           │   ├── HUD
 │           │   │   ├── ActivityHUDView.swift                       # Shows the state of the exectuable when running
 │           │   │   └── ConsoleLogView.swift                        # Shows details of the run

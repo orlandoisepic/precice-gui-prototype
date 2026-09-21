@@ -12,13 +12,13 @@ struct ParticipantContextMenu: View {
     let currentDimensionality: ParticipantDimensionality?
     
     // Actions passed from parent
-    var onAddPatch: () -> Void
+    var onAddLocationNode: () -> Void
     var onUpdateDimension: (ParticipantDimensionality?) -> Void
     var onDelete: () -> Void
     
     var body: some View {
-        Button("Add patch") {
-            onAddPatch()
+        Button("Add location") {
+            onAddLocationNode()
         }
         
         Divider()

@@ -55,8 +55,8 @@ struct ParticipantNodeView: View {
                         .id("Badge-\(participant.dimensionality?.hashValue ?? 0)")
                 }
             
-                // Patches
-            PatchRing(patches: $participant.patches, parentID: participant.id, viewModel: viewModel)
+                // Location nodes
+            LocationNodeRing(locationNodes: $participant.locationNodes, parentID: participant.id, viewModel: viewModel)
                 // The icon and solver name
             NodeInterior(solver: $participant.solver)
                 // Name tag
@@ -82,7 +82,7 @@ struct ParticipantNodeView: View {
         .contextMenu {
             ParticipantContextMenu(
                 currentDimensionality: participant.dimensionality,
-                onAddPatch: {addPatchAtMouseLocation()},
+                onAddLocationNode: {addLocationNodeAtMouseLocation()},
                 onUpdateDimension: {dim in updateDimension(dim)},
                 onDelete: {handleDeletion()}
             )

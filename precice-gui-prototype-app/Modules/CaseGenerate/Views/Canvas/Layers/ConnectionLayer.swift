@@ -19,17 +19,17 @@ struct ConnectionLayer: View {
             }
             
                 // The line when dragging (not yet existing edges)
-            if let startPatch = viewModel.draggingStartPatch,
+            if let startLocationNode = viewModel.draggingStartLocationNode,
                let startNode = viewModel.participants.first(
-                where: { $0.id == startPatch.parentId
+                where: { $0.id == startLocationNode.parentId
                 }),
-               let livePatch = startNode.patches.first(
-                where: { $0.id == startPatch.id
+               let liveLocationNode = startNode.locationNodes.first(
+                where: { $0.id == startLocationNode.id
                 }) {
                 
-                let startPos = viewModel.getPatchPosition(
+                let startPos = viewModel.getLocationNodePosition(
                     participant: startNode,
-                    patch: livePatch
+                    locationNode: liveLocationNode
                 )
                 
                 Path { path in

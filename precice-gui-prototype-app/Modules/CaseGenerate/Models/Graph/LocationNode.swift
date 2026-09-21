@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Patch: Identifiable, Codable {
+struct LocationNode: Identifiable, Codable {
     let id: UUID
     var name: String
     var angle: Double
