@@ -24,24 +24,30 @@ struct CaseGenerateRunner {
         task.executableURL = executableURL
         task.arguments = [inputYAML.path]
         
-            // 3. THE FIX: Inherit System Environment
+            // Inherit System Environment
             // PyInstaller needs to know where HOME and TMPDIR are to unpack itself.
         var env = ProcessInfo.processInfo.environment
         env["PYTHONUNBUFFERED"] = "1" // Force text to flush immediately
         env["PYTHONIOENCODING"] = "utf-8"
+        // Color in CLI output
+        env["FORCE_COLOR"] = "1"
+        env["CLICOLOR_FORCE"] = "1"
+        env["TERM"] = "xterm-256color"
+        env["COLORTERM"] = "truecolor"
+        
         task.environment = env
         
-            // 4. Force Permissions (Just in case)
+            // Force Permissions (Just in case)
             // 493 = rwxr-xr-x (755)
         try? FileManager.default.setAttributes([.posixPermissions: 493], ofItemAtPath: executableURL.path)
         
-            // 5. Capture Output AND Errors
+            // Capture Output AND Errors
         let outPipe = Pipe()
         let errPipe = Pipe()
         task.standardOutput = outPipe
         task.standardError = errPipe
         
-            // 🎯 THE FIX: Set the Working Directory to the project folder
+            // Set the Working Directory to the project folder
             // This ensures Python's relative paths (like '.logs') land in the right spot!
         task.currentDirectoryURL = inputYAML.deletingLastPathComponent()
         
@@ -54,7 +60,7 @@ struct CaseGenerateRunner {
             
             task.waitUntilExit()
             
-            log("\nprecice-case-generate output\n")
+            log("\nprecice-case-generate output:\n")
             
                 // Print Logs for Debugging
             if let output = String(data: outData, encoding: .utf8), !output.isEmpty {
