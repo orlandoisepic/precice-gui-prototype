@@ -16,7 +16,6 @@ struct OpenExternalButton: View {
     var textContent: String?
     var tempFileName: String = "file.log" // Default name for text mode
     
-        // --- State ---
     @State private var isHovering = false
     @State private var isPressed = false
     

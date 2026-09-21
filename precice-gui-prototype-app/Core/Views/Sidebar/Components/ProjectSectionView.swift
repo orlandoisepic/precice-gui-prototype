@@ -22,6 +22,9 @@ struct ProjectSectionView: View {
     var onPreview: (PreviewData) -> Void
     
     var body: some View {
+            // Explicitly read the trigger so SwiftUI knows this view depends on it (to update the FileTreeView on a file change)
+        let _ = viewModel.fileSystemTrigger
+        
         let isActive = (viewModel.currentProjectName == project)
         let isExpanded = expandedProjects.contains(project)
         let isDirty = (isActive && viewModel.hasUnsavedChanges)

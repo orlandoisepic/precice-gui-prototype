@@ -29,9 +29,37 @@ class GraphCanvasViewModel: ObservableObject {
     let nodeRadius: CGFloat = 60
     let patchHitThreshold: CGFloat = 40
     
+        // MARK: - File system management
+        // TODO: This should maybe live somewhere under Core/
+    @Published var fileSystemTrigger: UUID = UUID()
+    private var workspaceMonitor: FolderMonitor? // Check for new files and update the sidebar
+    
+    
     init() {
         ProjectManager.ensureRootDirectoryExists()
         refreshProjectList()
+        
+            // TODO: This should maybe live somewhere under Core/
+            // Monitor file changes in the root directory and below to accurately be represented in the sidebar
+        workspaceMonitor = FolderMonitor(url: ProjectManager.rootURL)
+        
+        workspaceMonitor?.folderDidChange = { [weak self] in
+            DispatchQueue.main.async {
+                    // Trigger the UI redraw for the file trees
+                self?.fileSystemTrigger = UUID()
+                    // Keep the top-level project list perfectly in sync too
+                self?.refreshProjectList()
+            }
+        }
+        
+            // 3. Start watching!
+        workspaceMonitor?.startMonitoring()
+    }
+        
+        // TODO: This should probably be under Core/
+        // Always stop monitoring when the ViewModel is destroyed to save system resources
+    deinit {
+        workspaceMonitor?.stopMonitoring()
     }
     
         // Helper to reset view
