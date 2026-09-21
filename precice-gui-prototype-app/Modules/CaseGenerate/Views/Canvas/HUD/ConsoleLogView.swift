@@ -63,7 +63,6 @@ struct ConsoleLogView: View {
                 .stroke(.white.opacity(0.2), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .cornerRadius(16)
     }
     
     private func copyToClipboard(text: String) {
