@@ -19,6 +19,7 @@ struct ActivityHUDView: View {
     @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
+        GeometryReader { geometry in // For dynamic ConsoleLogView sheet
         ZStack {
                 // Dim background
             if state != .idle {
@@ -135,15 +136,12 @@ struct ActivityHUDView: View {
                 log: logContent,
                 onClose: { showLogSheet = false
                 })
-            .frame(minWidth: 500, minHeight: 400)
-            .background(.clear)
-            .animation(
-                .spring(response: 0.3, dampingFraction: 0.7),
-                value: state
+            .frame(
+                width: max(600, geometry.size.width * 0.6),
+                height: max(400, geometry.size.height * 0.75)
             )
-            .shadow(color: .black.opacity(0.3), radius: 20)
             .padding(10)
-            
+        }
         }
             // This causes noticable lag upon clicking 'generate', but it would look nicer if it didn't :(
             // .animation(.spring(response: 0.3, dampingFraction: 0.7), value: state)
