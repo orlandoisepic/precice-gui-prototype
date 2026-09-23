@@ -73,19 +73,19 @@ struct TopologyGenerator {
         return nil
     }
     /// Check if the graph is syntactically correct and return any errors found
-    static func validateGraph(participants: [Participant], edges: [Edge]) -> [String] {
-        var errors: [String] = []
+    static func validateGraph(participants: [Participant], edges: [Edge]) -> Set<String> {
+        var errors: Set<String> = []
         
         var participantNames: [String] = []
 
         
             // 1. Basic Checks
-        if participants.isEmpty { errors.append("Graph must have at least one participant.") }
+        if participants.isEmpty { errors.insert("Graph must have at least one participant.") }
         
         // Check that each participant has a unique name
         for participant in participants {
             if participantNames.contains(participant.name) {
-                errors.append("Duplicate participant name: '\(participant.name)'")
+                errors.insert("Duplicate participant name: '\(participant.name)'")
             }
             else {
                 participantNames.append(participant.name)
@@ -94,7 +94,7 @@ struct TopologyGenerator {
         
         print("participant names: \(participantNames)")
         
-        if edges.isEmpty {errors.append("Graph must have at least one edge.")}
+        if edges.isEmpty {errors.insert("Graph must have at least one edge.")}
         
         var edgeValues: [[String]] = []
         
@@ -103,7 +103,7 @@ struct TopologyGenerator {
             
             guard let sourceInfo = findNodeAndlocationNode(participants: participants,locationNodeId: edge.sourceLocationNodeId),
                   let targetInfo = findNodeAndlocationNode(participants: participants, locationNodeId: edge.targetLocationNodeId) else {
-                errors.append("Edge conects to a missing location node.")
+                errors.insert("Edge conects to a missing location node.")
                 continue
             }
             
@@ -119,7 +119,7 @@ struct TopologyGenerator {
             let edgeList: [String] = [sourceParticipant, sourcePath, targetParticipant, targetPath, strength, data, dataType]
             
             if edgeValues.contains(edgeList) {
-                errors.append("Duplicate edge between \(sourceParticipant) and \(targetParticipant).")
+                errors.insert("Duplicate edge between \(sourceParticipant) and \(targetParticipant).")
             }
             
             edgeValues.append(edgeList)

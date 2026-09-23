@@ -38,58 +38,57 @@ extension GraphCanvasViewModel {
         // Run from the current project
     private func runAttachedSimulation() {
         guard let name = currentProjectName else {
-            self.generationState = 
-                .error(
-                    title: "No Project selected",
-                    message: "Please save the current project first.",
-                    details: nil
-                )
+            self.generationState = .error(
+                title: "No Project selected",
+                message: "Please save the current project first.",
+                details: nil
+            )
             return
         }
-            
+        
         print("Running attached simulation.")
         
-        self.generationState = .running
-            
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-                
-            saveProject(name: name)
-                
-                // Validate to avoid empty graph / duplicate items
-            let validationErrors = TopologyGenerator.validateGraph(
-                participants: participants,
-                edges: edges
-            )
-            if !validationErrors.isEmpty {
-                let details = validationErrors.map { "> " + $0 }.joined(
-                    separator: "\n"
-                )
+            // Validate graph synchronously before entering the running state
+        let validationErrors = TopologyGenerator.validateGraph(
+            participants: participants,
+            edges: edges
+        )
+        if !validationErrors.isEmpty {
+            let details = validationErrors.map { "> " + $0 }.joined(separator: "\n")
+            withAnimation {
                 self.generationState = .error(
                     title: "Invalid Graph",
                     message: "The graph contains errors.",
                     details: details
                 )
-                return
             }
-                
-                // Write topology file
-            guard let exportedPath = exportTopology() else {
-                self.generationState = 
-                    .error(
-                        title: "Export Failed",
-                        message: "Could not write YAML.",
-                        details: nil
-                    )
-                return
-            }
-                
-                // Run executable
-            executeRunner(inputPath: exportedPath)
-                
-            removeDetached(path: exportedPath)
-            print("removed detached: \(exportedPath)")
+            return
         }
+        
+            // Export topology synchronously before entering the running state
+        guard let exportedPath = exportTopology() else {
+            withAnimation {
+                self.generationState = .error(
+                    title: "Export Failed",
+                    message: "Could not write YAML.",
+                    details: nil
+                )
+            }
+            return
+        }
+        
+            // If we made it past the checks, trigger the save and show the loading state
+        saveProject(name: name)
+        
+        withAnimation {
+            self.generationState = .running
+        }
+        
+            // Run exectutable
+        executeRunner(inputPath: exportedPath)
+            // Mark the file as "attached" (remove it from "detached" list)
+        removeDetached(path: exportedPath)
+        print("removed detached: \(exportedPath)")
     }
         
         /// Call the executable file with the given path to the topology
