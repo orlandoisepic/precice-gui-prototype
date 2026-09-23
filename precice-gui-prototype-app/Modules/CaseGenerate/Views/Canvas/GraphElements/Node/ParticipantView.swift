@@ -33,7 +33,7 @@ struct ParticipantNodeView: View {
     var delay: Double {fancyAnimationsEnabled ? 0.4 : 0.1}
     
     var body: some View {
-        
+        let dimensionalityBadgeOffset = viewModel.participantNodeRadius / 6
         
         ZStack {
             Circle()
@@ -48,15 +48,10 @@ struct ParticipantNodeView: View {
                     }
                 }
                 .overlay(alignment: .topTrailing) {
-                    // Node dimensionality 
-                    NodeDimensionalityBadge(dimensionality: participant.dimensionality)
-                        .offset(x: 5, y: -5)
+                    NodeDimensionalityBadge(dimensionality: participant.dimensionality, viewModel: viewModel)
+                        .offset(x: dimensionalityBadgeOffset, y: -dimensionalityBadgeOffset)
                         .modifier(PopupAnimation(response: 0.4, damping: 0.5))
-                        .id("Badge-\(participant.dimensionality?.hashValue ?? 0)")
                 }
-            
-                // Location nodes
-            //LocationNodeRing(locationNodes: $participant.locationNodes, parentID: participant.id, viewModel: viewModel)
                 // The icon and solver name
             NodeInterior(solver: $participant.solver)
                 // Name tag
