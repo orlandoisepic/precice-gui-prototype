@@ -28,7 +28,10 @@ class GraphCanvasViewModel: ObservableObject {
         // MARK: - Constants
     let nodeRadius: CGFloat = 60
     let locationNodeHitThreshold: CGFloat = 40
-    let locationNodeInnerRingRatio: CGFloat = 0.675 // The relative distance from center to inner ring (volume location nodes live there)
+    let locationNodeInnerRingRatio: CGFloat = 0.675 // The relative distance from center to inner ring (volume location nodes live on the inner ring)
+    // Parameters for moving nodes with .withAnimation(.interactiveSpring(response: , dampingFraction: )
+    let nodeMovementResponse: CGFloat = 0.3
+    let nodeMovementDamping: CGFloat = 0.6
     
         // MARK: - File system management
         // TODO: This should maybe live somewhere under Core/

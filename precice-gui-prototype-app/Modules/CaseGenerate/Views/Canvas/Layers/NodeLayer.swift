@@ -39,7 +39,7 @@ private struct DraggableNode: View {
             .scaleEffect((isDragging && fancyAnimationsEnabled) ? 1.025 : 1.0)
             .animation(.spring(duration: 0.25), value: (isDragging && fancyAnimationsEnabled))
             .gesture(
-                DragGesture(coordinateSpace: .named("CanvasSpace"))
+                DragGesture(minimumDistance: 0, coordinateSpace: .named("CanvasSpace"))
                     .onChanged { value in
                         if initialPosition == nil {
                             DispatchQueue.main.async {
@@ -53,11 +53,12 @@ private struct DraggableNode: View {
                                 x: startPos.x + value.translation.width,
                                 y: startPos.y + value.translation.height
                             )
-                            viewModel
-                                .updateParticipantPosition(
+                            withAnimation(.interactiveSpring(response: viewModel.nodeMovementResponse, dampingFraction: viewModel.nodeMovementDamping)) {
+                                viewModel.updateParticipantPosition(
                                     id: participant.id,
                                     newPosition: newPos
                                 )
+                            }
                         }
                     }
                     .onEnded { _ in
