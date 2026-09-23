@@ -47,10 +47,10 @@ struct EdgeLabel: View {
             // Effects for deleting
         .opacity(isDeleting ? 0 : (drawProgress > 0.5 ? 1.0 : 0.0))
         .scaleEffect(isDeleting ? 0.5 : (drawProgress > 0.5 ? 1.0 : 0.5))
-            // Appears only after 50% of the edge is drawn
+            // The arrow for the direction of the edge ppears only after 50% of the edge is drawn
         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: drawProgress > 0.5)
-            // An arrow appears for vectors
-        .animation(.spring(duration: 0.5, bounce: 0.60), value: edge.dataType == .vector)
+            // An arrow (above data text field) appears for vectors
+        .animation(.spring(duration: 0.4, bounce: 0.60), value: edge.dataType == .vector)
             // Delete
         .animation(.easeOut(duration: 0.2), value: isDeleting)
     }

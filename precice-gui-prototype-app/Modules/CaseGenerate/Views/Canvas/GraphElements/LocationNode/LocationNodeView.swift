@@ -21,14 +21,19 @@ struct LocationNodeView: View {
     }
     
     let radius: CGFloat = 24
-    @AppStorage("fancyAnimationsEnabled") private var fancyAnimationsEnabled: Bool = true
+    @AppStorage(
+        "fancyAnimationsEnabled"
+    ) private var fancyAnimationsEnabled: Bool = true
     
     var locationNodeColor: Color {
         if themeManager.effectiveScheme == .dark {
             return Color.orange
         } else {
                 // Slighlty lighter orange in light mode
-            let nsColor = NSColor.systemOrange.blended(withFraction: 0.4, of: .white) ?? NSColor.systemOrange
+            let nsColor = NSColor.systemOrange.blended(
+                withFraction: 0.4,
+                of: .white
+            ) ?? NSColor.systemOrange
             return Color(nsColor: nsColor)
         }
     }
@@ -42,21 +47,32 @@ struct LocationNodeView: View {
                 // Surface view
                 // A donut with location node color, but white outline
             Circle()
-                .strokeBorder(isDeleting ? Color.white : locationNodeColor, lineWidth: 7.5)
-                    // The outer white border
-                .overlay(
-                    Circle().strokeBorder(.white, lineWidth: widthFactor*lineWidth) // Slightly smaller outline
+                .strokeBorder(
+                    isDeleting ? Color.white : locationNodeColor,
+                    lineWidth: 7.5
                 )
-                    // The inner white border
+                // The outer white border
                 .overlay(
-                    Circle().inset(by: 5.5).strokeBorder(.white, lineWidth: widthFactor*lineWidth)
+                    Circle()
+                        .strokeBorder(
+                            .white,
+                            lineWidth: widthFactor*lineWidth
+                        ) // Slightly smaller outline
+                )
+                // The inner white border
+                .overlay(
+                    Circle()
+                        .inset(by: 5.5)
+                        .strokeBorder(.white, lineWidth: widthFactor*lineWidth)
                 )
                 .contentShape(Circle()) // To make the interior clickable
                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
         } else {
                 // Volume view
             Circle()
-                .fill(isDeleting ? Color.white.gradient : locationNodeColor.gradient)
+                .fill(
+                    isDeleting ? Color.white.gradient : locationNodeColor.gradient
+                )
                 .overlay(
                     Circle().strokeBorder(.white, lineWidth: lineWidth)
                 )
@@ -86,16 +102,27 @@ struct LocationNodeView: View {
                 // Deletion effect
                 .shadow(radius: (isDeleting && fancyAnimationsEnabled) ? 10 : 1)
                 .opacity(isDeleting ? 0.0 : 1.0)
-                .scaleEffect(isDeleting ? (fancyAnimationsEnabled ? 3.0 : 0.2) : 1.0)
+                .scaleEffect(
+                    isDeleting ? (fancyAnimationsEnabled ? 3.0 : 0.2) : 1.0
+                )
                 .animation(.easeOut(duration: delay), value: isDeleting)
                 .gesture(
-                    DragGesture(coordinateSpace: .named("CanvasSpace")) // Must match CanvasView name
+                    DragGesture(
+                        minimumDistance: 0,
+                        coordinateSpace: .named("CanvasSpace")
+                    ) // Must match CanvasView name
                         .onChanged { value in
                                 // Update location node location when dragging edge
                             if viewModel.draggingStartLocationNode == nil {
-                                viewModel.startDraggingConnection(from: locationNode, at: value.location)
+                                viewModel
+                                    .startDraggingConnection(
+                                        from: locationNode,
+                                        at: value.location
+                                    )
                             } else {
-                                viewModel.updateDraggingPosition(value.location)
+                                withAnimation(.interactiveSpring(response: viewModel.nodeMovementResponse, dampingFraction: viewModel.nodeMovementDamping)) {
+                                    viewModel.updateDraggingPosition(value.location)
+                                }
                             }
                         }
                         .onEnded { value in
@@ -108,8 +135,12 @@ struct LocationNodeView: View {
                 .contextMenu {
                     
                         // Quick toggle to switch types
-                    Button(locationNode.type == .surface ? "Change type to volume" : "Change type to surface") {
-                        locationNode.type = (locationNode.type == .surface) ? .volume : .surface
+                    Button(
+                        locationNode.type == .surface ? "Change type to volume" : "Change type to surface"
+                    ) {
+                        locationNode.type = (
+                            locationNode.type == .surface
+                        ) ? .volume : .surface
                         viewModel.triggerAutoSave()
                     }
                     
@@ -129,9 +160,10 @@ struct LocationNodeView: View {
                             viewModel.dyingEdgeIDs.insert(edge.id)
                         }
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                            viewModel.deleteLocationNode(locationNode)
-                        }
+                        DispatchQueue.main
+                            .asyncAfter(deadline: .now() + delay) {
+                                viewModel.deleteLocationNode(locationNode)
+                            }
                     }
                 }
                 .onChange(of: viewModel.dyingParticipantIDs) { _, dyingNodes in

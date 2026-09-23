@@ -28,6 +28,16 @@ struct EdgeView: View {
                     end: data.end,
                     curve: data.curve
                 )
+                    // 🎯 Apply the exact same spring physics to the edges!
+                    // SwiftUI will smoothly interpolate the path whenever these coordinates update.
+                .animation(
+                    fancyAnimationsEnabled ? .interactiveSpring(response: viewModel.nodeMovementResponse, dampingFraction: viewModel.nodeMovementDamping) : nil,
+                    value: [
+                        data.start.x, data.start.y,
+                        data.end.x, data.end.y,
+                        data.curve.controlPoint.x, data.curve.controlPoint.y
+                    ]
+                )
             }
         }    // Lifecycle
         .onAppear {
