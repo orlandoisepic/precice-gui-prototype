@@ -53,10 +53,7 @@ private struct DraggableNode: View {
                                 x: startPos.x + value.translation.width,
                                 y: startPos.y + value.translation.height
                             )
-                            
-                                // 'response' controls the lag/weight (higher = slower).
-                                // 'dampingFraction' controls the bounce (lower = more bouncy).
-                            withAnimation(.interactiveSpring(response: 0.3, dampingFraction: 0.6)) {
+                            withAnimation(.interactiveSpring(response: viewModel.nodeMovementResponse, dampingFraction: viewModel.nodeMovementDamping)) {
                                 viewModel.updateParticipantPosition(
                                     id: participant.id,
                                     newPosition: newPos
