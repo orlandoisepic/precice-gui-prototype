@@ -22,8 +22,9 @@ struct CanvasView: View {
                 )
              // Nodes and edegs
             ZStack {
-                ConnectionLayer(viewModel: viewModel)
                 NodeLayer(viewModel: viewModel)
+                ConnectionLayer(viewModel: viewModel)
+                LocationLayer(viewModel: viewModel)
             }
             .coordinateSpace(name: "CanvasSpace")
             .offset(

@@ -28,6 +28,7 @@ class GraphCanvasViewModel: ObservableObject {
         // MARK: - Constants
     let nodeRadius: CGFloat = 60
     let locationNodeHitThreshold: CGFloat = 40
+    let locationNodeInnerRingRatio: CGFloat = 0.675 // The relative distance from center to inner ring (volume location nodes live there)
     
         // MARK: - File system management
         // TODO: This should maybe live somewhere under Core/

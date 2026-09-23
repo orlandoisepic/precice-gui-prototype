@@ -43,9 +43,11 @@ struct TopologyGenerator {
             }
             
             yaml += "  - from: \(sourceInfo.nodeName)\n"
-            yaml += "    from-location-names: \(sourceInfo.locationNodeName)\n"
+            yaml += "    from-location-names: [\(sourceInfo.locationNodeName)]\n"
+            yaml += "    from-location-type: \(sourceInfo.locationNodeType)\n"
             yaml += "    to: \(targetInfo.nodeName)\n"
-            yaml += "    to-location-names: \(targetInfo.locationNodeName)\n"
+            yaml += "    to-location-names: [\(targetInfo.locationNodeName)]\n"
+            yaml += "    to-location-type: \(targetInfo.locationNodeType)\n"
             yaml += "    data: \(edge.data)\n"
             
                 // Map our internal Enums to the Schema Strings
@@ -60,11 +62,12 @@ struct TopologyGenerator {
         return yaml
     }
     
-    // Helper to look up names from IDs
-    private static func findNodeAndlocationNode(participants: [Participant], locationNodeId: UUID) -> (nodeName: String, locationNodeName: String)? {
+    // Helper to look up location nodes from IDs
+    // Returns participant-name, location-node-name, location-node-type
+    private static func findNodeAndlocationNode(participants: [Participant], locationNodeId: UUID) -> (nodeName: String, locationNodeName: String, locationNodeType: String)? {
         for node in participants {
             if let locationNode = node.locationNodes.first(where: { $0.id == locationNodeId }) {
-                return (node.name, locationNode.name)
+                return (node.name, locationNode.name, locationNode.type.rawValue)
             }
         }
         return nil

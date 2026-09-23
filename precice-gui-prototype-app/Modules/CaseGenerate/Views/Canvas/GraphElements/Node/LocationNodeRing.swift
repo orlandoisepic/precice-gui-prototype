@@ -1,9 +1,9 @@
-//
-//  LocationNodeRing.swift
-//  case-generate-app
-//
-//  Created by Orlando Ackermann on 07.02.26.
-//
+    //
+    //  LocationNodeRing.swift
+    //  case-generate-app
+    //
+    //  Created by Orlando Ackermann on 07.02.26.
+    //
 import SwiftUI
 
 struct LocationNodeRing: View {
@@ -11,12 +11,22 @@ struct LocationNodeRing: View {
     let parentID: UUID
     @ObservedObject var viewModel: GraphCanvasViewModel
     
+        // How far inside the volume locations should sit (0.5 = halfway to the center)
+    
     var body: some View {
         GeometryReader { _ in
             ForEach($locationNodes) { $locationNode in
-                let r = viewModel.nodeRadius
-                let xPos = r + (r * cos(locationNode.angle))
-                let yPos = r + (r * sin(locationNode.angle))
+                
+                let center = viewModel.nodeRadius
+                
+                    //Dynamically choose the orbit distance based on the type of the location node
+                let orbitRadius = locationNode.type == .surface
+                ? viewModel.nodeRadius
+                : (viewModel.nodeRadius * viewModel.locationNodeInnerRingRatio)
+                
+                    // Math: center point + (orbit distance * angle)
+                let xPos = center + (orbitRadius * cos(locationNode.angle))
+                let yPos = center + (orbitRadius * sin(locationNode.angle))
                 
                 LocationNodeView(locationNode: $locationNode, parentID: parentID, viewModel: viewModel)
                     .position(x: xPos, y: yPos)

@@ -56,7 +56,7 @@ struct ParticipantNodeView: View {
                 }
             
                 // Location nodes
-            LocationNodeRing(locationNodes: $participant.locationNodes, parentID: participant.id, viewModel: viewModel)
+            //LocationNodeRing(locationNodes: $participant.locationNodes, parentID: participant.id, viewModel: viewModel)
                 // The icon and solver name
             NodeInterior(solver: $participant.solver)
                 // Name tag

@@ -1,5 +1,5 @@
 //
-//  to.swift
+//  EdgeViewHelpers.swift
 //  case-generate-app
 //
 //  Created by Orlando Ackermann on 07.02.26.
@@ -28,11 +28,11 @@ extension EdgeView {
             return nil
         }
         
-        let start = viewModel.getLocationNodePosition(
+        var start = viewModel.getLocationNodePosition(
             participant: source.node,
             locationNode: source.locationNode
         )
-        let end = viewModel.getLocationNodePosition(
+        var end = viewModel.getLocationNodePosition(
             participant: target.node,
             locationNode: target.locationNode
         )
@@ -44,6 +44,29 @@ extension EdgeView {
             targetNodeId: target.node.id,
             currentEdgeId: edge.id
         )
+        
+            // Trim ONLY for surface donuts so the hole stays clear
+        let trim: CGFloat = 12
+        
+        if source.locationNode.type == .surface {
+            let dx = curve.controlPoint.x - start.x
+            let dy = curve.controlPoint.y - start.y
+            let len = hypot(dx, dy)
+            if len > trim {
+                start.x += (dx / len) * trim
+                start.y += (dy / len) * trim
+            }
+        }
+        
+        if target.locationNode.type == .surface {
+            let dx = curve.controlPoint.x - end.x
+            let dy = curve.controlPoint.y - end.y
+            let len = hypot(dx, dy)
+            if len > trim {
+                end.x += (dx / len) * trim
+                end.y += (dy / len) * trim
+            }
+        }
         
         return ResolvedEdge(start: start, end: end, curve: curve)
     }
