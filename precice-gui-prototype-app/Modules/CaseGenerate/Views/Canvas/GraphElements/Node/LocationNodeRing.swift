@@ -17,12 +17,12 @@ struct LocationNodeRing: View {
         GeometryReader { _ in
             ForEach($locationNodes) { $locationNode in
                 
-                let center = viewModel.nodeRadius
+                let center = viewModel.participantNodeRadius
                 
                     //Dynamically choose the orbit distance based on the type of the location node
                 let orbitRadius = locationNode.type == .surface
-                ? viewModel.nodeRadius
-                : (viewModel.nodeRadius * viewModel.locationNodeInnerRingRatio)
+                ? viewModel.participantNodeRadius
+                : (viewModel.participantNodeRadius * viewModel.locationNodeInnerRingRatio)
                 
                     // Math: center point + (orbit distance * angle)
                 let xPos = center + (orbitRadius * cos(locationNode.angle))
@@ -33,6 +33,6 @@ struct LocationNodeRing: View {
                     .modifier(PopupAnimation(response: 0.3, damping: 0.5))
             }
         }
-        .frame(width: viewModel.nodeRadius * 2, height: viewModel.nodeRadius * 2)
+        .frame(width: viewModel.participantNodeRadius * 2, height: viewModel.participantNodeRadius * 2)
     }
 }

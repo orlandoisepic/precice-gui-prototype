@@ -12,8 +12,8 @@ extension GraphCanvasViewModel {
         // MARK: - Position Helpers
     func getLocationNodePosition(participant: Participant, locationNode: LocationNode) -> CGPoint {
             // Make sure this matches the ratio in LocationNodeRing!
-        let orbitRadius = locationNode.type == .surface ? nodeRadius : (
-            nodeRadius * self.locationNodeInnerRingRatio
+        let orbitRadius = locationNode.type == .surface ? participantNodeRadius : (
+            participantNodeRadius * self.locationNodeInnerRingRatio
         )
         
         let x = participant.position.x + (orbitRadius * cos(locationNode.angle))

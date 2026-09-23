@@ -60,12 +60,12 @@ struct ParticipantNodeView: View {
                 // The icon and solver name
             NodeInterior(solver: $participant.solver)
                 // Name tag
-            NodeNameTag(name: $participant.name, nodeRadius: viewModel.nodeRadius)
+            NodeNameTag(name: $participant.name, nodeRadius: viewModel.participantNodeRadius)
         }
         .frame(
             // Slighly larger hit area
-            width: viewModel.nodeRadius * 2 + 5,
-            height: viewModel.nodeRadius * 2 + 5
+            width: viewModel.participantNodeRadius * 2 + 5,
+            height: viewModel.participantNodeRadius * 2 + 5
         )
         .modifier(PopupAnimation(response: 0.35, damping: 0.45))
             // Implosion delete effect

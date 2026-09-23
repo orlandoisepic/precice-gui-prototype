@@ -82,7 +82,7 @@ extension GraphCanvasViewModel {
         }
         let newLocationNode = LocationNode(
             id: UUID(),
-            name: "Port",
+            names: ["Port"],
             angle: angle,
             parentId: participantId
         )

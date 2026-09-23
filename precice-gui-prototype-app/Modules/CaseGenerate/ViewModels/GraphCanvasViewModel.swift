@@ -26,7 +26,9 @@ class GraphCanvasViewModel: ObservableObject {
     @Published var dyingParticipantIDs: Set<UUID> = []
     
         // MARK: - Constants
-    let nodeRadius: CGFloat = 60
+    let participantNodeRadius: CGFloat = 65
+    let locationNodeRadius: CGFloat = 25 / 2
+    // let participantDimensionalityBadgeSize: CGFloat = 15 // TODO: Implement this
     let locationNodeHitThreshold: CGFloat = 40
     let locationNodeInnerRingRatio: CGFloat = 0.675 // The relative distance from center to inner ring (volume location nodes live on the inner ring)
     // Parameters for moving nodes with .withAnimation(.interactiveSpring(response: , dampingFraction: )

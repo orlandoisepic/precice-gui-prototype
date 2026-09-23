@@ -43,10 +43,10 @@ struct TopologyGenerator {
             }
             
             yaml += "  - from: \(sourceInfo.nodeName)\n"
-            yaml += "    from-location-names: [\(sourceInfo.locationNodeName)]\n"
+            yaml += "    from-location-names: [\(sourceInfo.locationNodeNames.joined(separator: ", "))]\n"
             yaml += "    from-location-type: \(sourceInfo.locationNodeType)\n"
             yaml += "    to: \(targetInfo.nodeName)\n"
-            yaml += "    to-location-names: [\(targetInfo.locationNodeName)]\n"
+            yaml += "    to-location-names: [\(targetInfo.locationNodeNames.joined(separator: ", "))]\n"
             yaml += "    to-location-type: \(targetInfo.locationNodeType)\n"
             yaml += "    data: \(edge.data)\n"
             
@@ -63,11 +63,11 @@ struct TopologyGenerator {
     }
     
     // Helper to look up location nodes from IDs
-    // Returns participant-name, location-node-name, location-node-type
-    private static func findNodeAndlocationNode(participants: [Participant], locationNodeId: UUID) -> (nodeName: String, locationNodeName: String, locationNodeType: String)? {
+    // Returns participant-name, location-node-names, location-node-type
+    private static func findNodeAndlocationNode(participants: [Participant], locationNodeId: UUID) -> (nodeName: String, locationNodeNames: [String], locationNodeType: String)? {
         for node in participants {
             if let locationNode = node.locationNodes.first(where: { $0.id == locationNodeId }) {
-                return (node.name, locationNode.name, locationNode.type.rawValue)
+                return (node.name, locationNode.names, locationNode.type.rawValue)
             }
         }
         return nil
@@ -109,9 +109,10 @@ struct TopologyGenerator {
             
             // Get values of edge to compare
             let sourceParticipant: String = sourceInfo.nodeName
-            let sourcePath: String = sourceInfo.locationNodeName
+            // Single string
+            let sourcePath: String = sourceInfo.locationNodeNames.joined(separator: ",")
             let targetParticipant: String = targetInfo.nodeName
-            let targetPath: String = targetInfo.locationNodeName
+            let targetPath: String = targetInfo.locationNodeNames.joined(separator: ",")
             let strength: String = edge.strength.rawValue
             let data: String = edge.data
             let dataType: String = edge.dataType?.rawValue ?? ""

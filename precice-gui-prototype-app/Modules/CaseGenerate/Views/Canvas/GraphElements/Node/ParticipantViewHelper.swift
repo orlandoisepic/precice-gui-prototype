@@ -18,8 +18,8 @@ extension ParticipantNodeView {
     
     func addLocationNodeAtMouseLocation() {
         let center = CGPoint(
-            x: viewModel.nodeRadius,
-            y: viewModel.nodeRadius
+            x: viewModel.participantNodeRadius,
+            y: viewModel.participantNodeRadius
         )
         let dx = lastMousePosition.x - center.x
         let dy = lastMousePosition.y - center.y
