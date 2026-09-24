@@ -84,6 +84,8 @@ extension GraphCanvasViewModel {
             var angle: Double
             let edgeId: String
             let targetNodeId: String
+            let edgeCreatedAt: Date
+            let isBeingDragged: Bool
         }
         
         var infos: [LocationNodeAngleInfo] = []
@@ -95,7 +97,11 @@ extension GraphCanvasViewModel {
             var edgeId = ""
             var targetNodeId = ""
             
+            var edgeDate = Date.distantFuture
+            var isDragged = false
+            
             if let draggingLocationNode = draggingStartLocationNode, draggingLocationNode.id == loc.id {
+                isDragged = true
                 idealAngle = atan2(
                     draggingCurrentPos.y - node.position.y,
                     draggingCurrentPos.x - node.position.x
@@ -106,13 +112,14 @@ extension GraphCanvasViewModel {
                 }
                 if let firstEdge = connectedEdges.first {
                     edgeId = firstEdge.id.uuidString
+                    edgeDate = firstEdge.createdAt
                     let otherLocId = (
                         firstEdge.sourceLocationNodeId == loc.id
                     ) ? firstEdge.targetLocationNodeId : firstEdge.sourceLocationNodeId
                     if let otherOwnerId = findOwnerOfLocationNode(otherLocId),
                        let otherNode = participants.first(where: { $0.id == otherOwnerId }) {
                         targetNodeId = otherOwnerId.uuidString
-                            // 🎯 Aiming at the participant center guarantees the bundle stays locked!
+                            // Aiming at the participant center guarantees the bundle stays locked!
                         idealAngle = atan2(
                             otherNode.position.y - node.position.y,
                             otherNode.position.x - node.position.x
@@ -126,7 +133,9 @@ extension GraphCanvasViewModel {
                         index: i,
                         angle: idealAngle,
                         edgeId: edgeId,
-                        targetNodeId: targetNodeId
+                        targetNodeId: targetNodeId,
+                        edgeCreatedAt: edgeDate,
+                        isBeingDragged: isDragged
                     )
                 )
         }
@@ -177,18 +186,24 @@ extension GraphCanvasViewModel {
             
             let avg = sumAngle / Double(cluster.count)
             
-                // Sort the cluster. Mirror the order for one side to avoid crossing exchange edges
-            cluster.sort {
- a,
-                b in
+                // Sort the cluster cleanly and deterministically
+            cluster.sort { a, b in
+                    // PRIORITY 1: Respect the mouse during a drag
+                if a.isBeingDragged || b.isBeingDragged {
+                    return a.angle < b.angle
+                }
+                
+                    // PRIORITY 2: Group by target participant
                 if a.targetNodeId != b.targetNodeId {
                     return a.targetNodeId < b.targetNodeId
                 }
                 
+                    // PRIORITY 3: Tie-breaker for edges going to the SAME participant
+                    // Mirror the order for one side to guarantee lines stay perfectly parallel
                 if !a.targetNodeId.isEmpty && nodeId.uuidString > a.targetNodeId {
-                    return a.edgeId > b.edgeId // Reversed order!
+                    return a.edgeCreatedAt > b.edgeCreatedAt // Reversed order for the target node
                 }
-                return a.edgeId < b.edgeId // Normal order
+                return a.edgeCreatedAt < b.edgeCreatedAt // Normal order for the source node
             }
             
                 // Apply spacing offsets
