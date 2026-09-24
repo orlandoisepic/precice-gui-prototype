@@ -94,10 +94,9 @@ extension GraphCanvasViewModel {
         struct LocationNodeAngleInfo {
             let index: Int
             var angle: Double
-            let edgeId: String
+            let currentPhysicalAngle: Double
             let targetNodeId: String
-            let edgeCreatedAt: Date
-            let isBeingDragged: Bool
+            let targetLocAbsolutePos: CGPoint? // 👈 NEW: The exact (x,y) of the target patch!
         }
         
         var infos: [LocationNodeAngleInfo] = []
@@ -106,50 +105,44 @@ extension GraphCanvasViewModel {
         for i in 0..<locationNodes.count {
             let loc = locationNodes[i]
             var idealAngle = loc.angle
-            var edgeId = ""
             var targetNodeId = ""
-            
-            var edgeDate = Date.distantFuture
-            var isDragged = false
+            var targetLocAbsolutePos: CGPoint? = nil // 👈 Track the target
             
             if let draggingLocationNode = draggingStartLocationNode, draggingLocationNode.id == loc.id {
-                isDragged = true
                 idealAngle = atan2(
                     draggingCurrentPos.y - node.position.y,
                     draggingCurrentPos.x - node.position.x
                 )
+                targetLocAbsolutePos = draggingCurrentPos // 👈 Use mouse position!
             } else {
                 let connectedEdges = edges.filter {
                     $0.sourceLocationNodeId == loc.id || $0.targetLocationNodeId == loc.id
                 }
                 if let firstEdge = connectedEdges.first {
-                    edgeId = firstEdge.id.uuidString
-                    edgeDate = firstEdge.createdAt
-                    let otherLocId = (
-                        firstEdge.sourceLocationNodeId == loc.id
-                    ) ? firstEdge.targetLocationNodeId : firstEdge.sourceLocationNodeId
+                    let otherLocId = (firstEdge.sourceLocationNodeId == loc.id) ? firstEdge.targetLocationNodeId : firstEdge.sourceLocationNodeId
+                    
                     if let otherOwnerId = findOwnerOfLocationNode(otherLocId),
-                       let otherNode = participants.first(where: { $0.id == otherOwnerId }) {
+                       let otherNode = participants.first(where: { $0.id == otherOwnerId }),
+                       let otherLocNode = otherNode.locationNodes.first(where: { $0.id == otherLocId }) {
+                        
                         targetNodeId = otherOwnerId.uuidString
-                            // Aiming at the participant center guarantees the bundle stays locked!
                         idealAngle = atan2(
                             otherNode.position.y - node.position.y,
                             otherNode.position.x - node.position.x
                         )
+                            // 👈 Get the EXACT physical (x,y) of the connected patch!
+                        targetLocAbsolutePos = getLocationNodePosition(participant: otherNode, locationNode: otherLocNode)
                     }
                 }
             }
-            infos
-                .append(
-                    LocationNodeAngleInfo(
-                        index: i,
-                        angle: idealAngle,
-                        edgeId: edgeId,
-                        targetNodeId: targetNodeId,
-                        edgeCreatedAt: edgeDate,
-                        isBeingDragged: isDragged
-                    )
-                )
+            
+            infos.append(LocationNodeAngleInfo(
+                index: i,
+                angle: idealAngle,
+                currentPhysicalAngle: loc.angle,
+                targetNodeId: targetNodeId,
+                targetLocAbsolutePos: targetLocAbsolutePos
+            ))
         }
         
             // 2. Normalize to [0, 2pi)
@@ -198,24 +191,32 @@ extension GraphCanvasViewModel {
             
             let avg = sumAngle / Double(cluster.count)
             
-                // Sort the cluster cleanly and deterministically
+
+                // Sort the cluster to mathematically prevent crossed edges
             cluster.sort { a, b in
-                    // PRIORITY 1: Respect the mouse during a drag
-                if a.isBeingDragged || b.isBeingDragged {
-                    return a.angle < b.angle
+                
+                func getAimDelta(for info: LocationNodeAngleInfo) -> Double {
+                        // If it's totally disconnected and not being dragged, keep it neutral
+                    guard let targetPos = info.targetLocAbsolutePos else {
+                        return 0
+                    }
+                    
+                        // Angle from this participant to the exact target patch/mouse
+                    let aimAngle = atan2(targetPos.y - node.position.y, targetPos.x - node.position.x)
+                    
+                        // Calculate relative difference from the bundle's center base angle
+                    return atan2(sin(aimAngle - info.angle), cos(aimAngle - info.angle))
                 }
                 
-                    // PRIORITY 2: Group by target participant
-                if a.targetNodeId != b.targetNodeId {
-                    return a.targetNodeId < b.targetNodeId
+                let deltaA = getAimDelta(for: a)
+                let deltaB = getAimDelta(for: b)
+                
+                    // Fallback tie-breaker
+                if deltaA == deltaB {
+                    return a.index < b.index
                 }
                 
-                    // PRIORITY 3: Tie-breaker for edges going to the SAME participant
-                    // Mirror the order for one side to guarantee lines stay perfectly parallel
-                if !a.targetNodeId.isEmpty && nodeId.uuidString > a.targetNodeId {
-                    return a.edgeCreatedAt > b.edgeCreatedAt // Reversed order for the target node
-                }
-                return a.edgeCreatedAt < b.edgeCreatedAt // Normal order for the source node
+                return deltaA < deltaB
             }
             
                 // Apply spacing offsets
