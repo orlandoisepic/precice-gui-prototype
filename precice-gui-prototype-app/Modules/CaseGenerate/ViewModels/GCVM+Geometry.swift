@@ -234,7 +234,10 @@ extension GraphCanvasViewModel {
         
             // Apply the calculated angles back to the location nodes
         for info in infos {
-            participants[index].locationNodes[info.index].angle = info.angle
+            // Animate to make it make it smooth
+            withAnimation(.spring(response: self.nodeMovementResponse, dampingFraction: self.nodeMovementDamping)) {
+                participants[index].locationNodes[info.index].angle = info.angle
+            }
         }
     }
     
