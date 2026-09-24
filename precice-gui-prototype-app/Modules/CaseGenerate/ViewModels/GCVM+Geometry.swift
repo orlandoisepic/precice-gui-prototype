@@ -21,20 +21,32 @@ extension GraphCanvasViewModel {
         return CGPoint(x: x, y: y)
     }
     
+    /// Find the location node closest to the location, within the treshold
     func findLocationNode(at location: CGPoint, excluding sourceLocationNodeId: UUID, threshold: CGFloat = 30) -> LocationNode? {
+        
+        var closestNode: LocationNode? = nil
+        var shortestDistance: CGFloat = threshold // Start with the maximum allowed distance
+        
         for participant in participants {
             for locationNode in participant.locationNodes {
                 if locationNode.id == sourceLocationNodeId { continue }
+                
                 let locationNodePos = getLocationNodePosition(
                     participant: participant,
                     locationNode: locationNode
                 )
-                if hypot(locationNodePos.x - location.x, locationNodePos.y - location.y) < threshold {
-                    return locationNode
+                
+                let distance = hypot(locationNodePos.x - location.x, locationNodePos.y - location.y)
+                
+                    // Only update if it is closer than the previous closest node!
+                if distance < shortestDistance {
+                    shortestDistance = distance
+                    closestNode = locationNode
                 }
             }
         }
-        return nil
+        
+        return closestNode
     }
     
     func findOwnerOfLocationNode(_ locationNodeId: UUID) -> UUID? {
