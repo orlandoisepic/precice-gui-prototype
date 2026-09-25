@@ -22,33 +22,33 @@ struct GraphThumbnail: View {
                     x: (startPoint.x + endPoint.x) / 2,
                     y: (startPoint.y + endPoint.y) / 2
                 )
-                    // B. Calculate Angle for Patch Placement
-                    // This ensures the patches "look" at each other perfectly
+                    // B. Calculate Angle for location node Placement
+                    // This ensures the location nodes "look" at each other perfectly
                 let dx = endPoint.x - startPoint.x
                 let dy = endPoint.y - startPoint.y
                 let angle = atan2(dy, dx)
                 
                 let radius: CGFloat = 22
                 
-                let patchOffsetX = cos(angle) * radius
-                let patchOffsetY = sin(angle) * radius
+                let locationNodeOffsetX = cos(angle) * radius
+                let locationNodeOffsetY = sin(angle) * radius
                 
                 
-                let startPatchPosition = CGPoint(
-                    x: startPoint.x + patchOffsetX,
-                    y: startPoint.y + patchOffsetY
+                let startLocationNodePosition = CGPoint(
+                    x: startPoint.x + locationNodeOffsetX,
+                    y: startPoint.y + locationNodeOffsetY
                 )
-                let endPatchPosition = CGPoint(
-                    x: endPoint.x + patchOffsetX,
-                    y: endPoint.y + patchOffsetY
+                let endLocationNodePosition = CGPoint(
+                    x: endPoint.x + locationNodeOffsetX,
+                    y: endPoint.y + locationNodeOffsetY
                 )
                 
-                ThumbnailPath(start: startPatchPosition, end: endPatchPosition, control: controlPoint)
+                ThumbnailPath(start: startLocationNodePosition, end: endLocationNodePosition, control: controlPoint)
                     .stroke(Color.gray.opacity(0.5), lineWidth: 2)
                 
                     // The Animated Pulse
                 if fancyAnimationsEnabled {
-                    ThumbnailPulse(start: CGPoint(x: startPoint.x + patchOffsetX, y: startPoint.y + patchOffsetY), end: endPatchPosition, control: controlPoint)
+                    ThumbnailPulse(start: CGPoint(x: startPoint.x + locationNodeOffsetX, y: startPoint.y + locationNodeOffsetY), end: endLocationNodePosition, control: controlPoint)
                 }
 
                 
@@ -60,10 +60,10 @@ struct GraphThumbnail: View {
                 .position(controlPoint)
                 .offset(y: -12)
                 
-                ThumbnailNode(icon: "cube.fill", patchOffset: CGSize(width: patchOffsetX, height: patchOffsetY))
+                ThumbnailNode(icon: "cube.fill", locationNodeOffset: CGSize(width: locationNodeOffsetX, height: locationNodeOffsetY))
                     .position(startPoint)
                 
-                ThumbnailNode(icon: "cube.fill", patchOffset: CGSize(width: -patchOffsetX, height: -patchOffsetY))
+                ThumbnailNode(icon: "cube.fill", locationNodeOffset: CGSize(width: -locationNodeOffsetX, height: -locationNodeOffsetY))
                     .position(endPoint)
             }
         }
@@ -133,17 +133,17 @@ private struct ThumbnailPath: Shape {
     }
 }
 
-    /// Dummy participant with patches
+    /// Dummy participant with location node
 private struct ThumbnailNode: View {
     let icon: String
-    let patchOffset: CGSize
+    let locationNodeOffset: CGSize
     @EnvironmentObject var themeManager: ThemeManager
     
     var nodeColor: Color {
         themeManager.effectiveScheme == .dark ? Color.blue : Color.blue.mix(with: .white, by: 0.4)
     }
     
-    var patchColor: Color {
+    var locationNodeColor: Color {
         themeManager.effectiveScheme == .dark ? .orange : Color.orange.opacity(0.8)
     }
     
@@ -163,12 +163,12 @@ private struct ThumbnailNode: View {
                 .font(.system(size: 18))
                 .foregroundStyle(.white.opacity(0.9))
                 
-                // Patch
+                // Location node
             Circle()
-                .fill(patchColor.gradient)
+                .fill(locationNodeColor.gradient)
                 .frame(width: 12, height: 12)
                 .overlay(Circle().stroke(.white, lineWidth: 1.5))
-                .offset(patchOffset)
+                .offset(locationNodeOffset)
         }
     }
 }

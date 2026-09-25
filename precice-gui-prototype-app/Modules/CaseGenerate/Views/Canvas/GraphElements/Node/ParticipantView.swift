@@ -33,7 +33,7 @@ struct ParticipantNodeView: View {
     var delay: Double {fancyAnimationsEnabled ? 0.4 : 0.1}
     
     var body: some View {
-        
+        let dimensionalityBadgeOffset = viewModel.participantNodeRadius / 6
         
         ZStack {
             Circle()
@@ -48,24 +48,19 @@ struct ParticipantNodeView: View {
                     }
                 }
                 .overlay(alignment: .topTrailing) {
-                    // Node dimensionality 
-                    NodeDimensionalityBadge(dimensionality: participant.dimensionality)
-                        .offset(x: 5, y: -5)
+                    NodeDimensionalityBadge(dimensionality: participant.dimensionality, viewModel: viewModel)
+                        .offset(x: dimensionalityBadgeOffset, y: -dimensionalityBadgeOffset)
                         .modifier(PopupAnimation(response: 0.4, damping: 0.5))
-                        .id("Badge-\(participant.dimensionality?.hashValue ?? 0)")
                 }
-            
-                // Patches
-            PatchRing(patches: $participant.patches, parentID: participant.id, viewModel: viewModel)
                 // The icon and solver name
             NodeInterior(solver: $participant.solver)
                 // Name tag
-            NodeNameTag(name: $participant.name, nodeRadius: viewModel.nodeRadius)
+            NodeNameTag(name: $participant.name, nodeRadius: viewModel.participantNodeRadius)
         }
         .frame(
             // Slighly larger hit area
-            width: viewModel.nodeRadius * 2 + 5,
-            height: viewModel.nodeRadius * 2 + 5
+            width: viewModel.participantNodeRadius * 2 + 5,
+            height: viewModel.participantNodeRadius * 2 + 5
         )
         .modifier(PopupAnimation(response: 0.35, damping: 0.45))
             // Implosion delete effect
@@ -82,7 +77,7 @@ struct ParticipantNodeView: View {
         .contextMenu {
             ParticipantContextMenu(
                 currentDimensionality: participant.dimensionality,
-                onAddPatch: {addPatchAtMouseLocation()},
+                onAddLocationNode: {addLocationNodeAtMouseLocation()},
                 onUpdateDimension: {dim in updateDimension(dim)},
                 onDelete: {handleDeletion()}
             )

@@ -16,18 +16,24 @@ class GraphCanvasViewModel: ObservableObject {
     @Published var detachedFiles:Set<URL> = []
     
         // MARK: - Interaction State
-    @Published var draggingStartPatch: Patch? = nil
+    @Published var draggingStartLocationNode: LocationNode? = nil
     @Published var draggingCurrentPos: CGPoint = .zero
-        // Patch that we are hovering over
-    @Published var hoveredPatchID: UUID? = nil
+        // Location node that we are hovering over
+    @Published var hoveredLocationNodeID: UUID? = nil
     
         // MARK: - Animation State
     @Published var dyingEdgeIDs: Set<UUID> = []
     @Published var dyingParticipantIDs: Set<UUID> = []
     
         // MARK: - Constants
-    let nodeRadius: CGFloat = 60
-    let patchHitThreshold: CGFloat = 40
+    let participantNodeRadius: CGFloat = 65
+    let locationNodeRadius: CGFloat = 25 / 2
+    let participantDimensionalityBadgeRadius: CGFloat = 20 / 2
+    let locationNodeHitThreshold: CGFloat = 40
+    let locationNodeInnerRingRatio: CGFloat = 0.675 // The relative distance from center to inner ring (volume location nodes live on the inner ring)
+    // Parameters for moving nodes with .withAnimation(.interactiveSpring(response: , dampingFraction: )
+    let nodeMovementResponse: CGFloat = 0.3
+    let nodeMovementDamping: CGFloat = 0.6
     
         // MARK: - File system management
         // TODO: This should maybe live somewhere under Core/

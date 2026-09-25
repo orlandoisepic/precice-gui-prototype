@@ -36,16 +36,18 @@ struct TopologyGenerator {
         
         for edge in edges {
                 // We need to resolve IDs back to Names
-            guard let sourceInfo = findNodeAndPatch(participants: participants, patchId: edge.sourcePatchId),
-                  let targetInfo = findNodeAndPatch(participants: participants, patchId: edge.targetPatchId) else {
+            guard let sourceInfo = findNodeAndlocationNode(participants: participants, locationNodeId: edge.sourceLocationNodeId),
+                  let targetInfo = findNodeAndlocationNode(participants: participants, locationNodeId: edge.targetLocationNodeId) else {
                 print("Warning: skipped edge \(edge.id) because nodes could not be found.")
                 continue
             }
             
             yaml += "  - from: \(sourceInfo.nodeName)\n"
-            yaml += "    from-patch: \(sourceInfo.patchName)\n"
+            yaml += "    from-location-names: [\(sourceInfo.locationNodeNames.joined(separator: ", "))]\n"
+            yaml += "    from-location-type: \(sourceInfo.locationNodeType)\n"
             yaml += "    to: \(targetInfo.nodeName)\n"
-            yaml += "    to-patch: \(targetInfo.patchName)\n"
+            yaml += "    to-location-names: [\(targetInfo.locationNodeNames.joined(separator: ", "))]\n"
+            yaml += "    to-location-type: \(targetInfo.locationNodeType)\n"
             yaml += "    data: \(edge.data)\n"
             
                 // Map our internal Enums to the Schema Strings
@@ -60,29 +62,30 @@ struct TopologyGenerator {
         return yaml
     }
     
-    // Helper to look up names from IDs
-    private static func findNodeAndPatch(participants: [Participant], patchId: UUID) -> (nodeName: String, patchName: String)? {
+    // Helper to look up location nodes from IDs
+    // Returns participant-name, location-node-names, location-node-type
+    private static func findNodeAndlocationNode(participants: [Participant], locationNodeId: UUID) -> (nodeName: String, locationNodeNames: [String], locationNodeType: String)? {
         for node in participants {
-            if let patch = node.patches.first(where: { $0.id == patchId }) {
-                return (node.name, patch.name)
+            if let locationNode = node.locationNodes.first(where: { $0.id == locationNodeId }) {
+                return (node.name, locationNode.names, locationNode.type.rawValue)
             }
         }
         return nil
     }
     /// Check if the graph is syntactically correct and return any errors found
-    static func validateGraph(participants: [Participant], edges: [Edge]) -> [String] {
-        var errors: [String] = []
+    static func validateGraph(participants: [Participant], edges: [Edge]) -> Set<String> {
+        var errors: Set<String> = []
         
         var participantNames: [String] = []
 
         
             // 1. Basic Checks
-        if participants.isEmpty { errors.append("Graph must have at least one participant.") }
+        if participants.isEmpty { errors.insert("Graph must have at least one participant.") }
         
         // Check that each participant has a unique name
         for participant in participants {
             if participantNames.contains(participant.name) {
-                errors.append("Duplicate participant name: '\(participant.name)'")
+                errors.insert("Duplicate participant name: '\(participant.name)'")
             }
             else {
                 participantNames.append(participant.name)
@@ -91,24 +94,25 @@ struct TopologyGenerator {
         
         print("participant names: \(participantNames)")
         
-        if edges.isEmpty {errors.append("Graph must have at least one edge.")}
+        if edges.isEmpty {errors.insert("Graph must have at least one edge.")}
         
         var edgeValues: [[String]] = []
         
         // Edges must be unique
         for edge in edges {
             
-            guard let sourceInfo = findNodeAndPatch(participants: participants,patchId: edge.sourcePatchId),
-                  let targetInfo = findNodeAndPatch(participants: participants, patchId: edge.targetPatchId) else {
-                errors.append("Edge conects to a missing patch.")
+            guard let sourceInfo = findNodeAndlocationNode(participants: participants,locationNodeId: edge.sourceLocationNodeId),
+                  let targetInfo = findNodeAndlocationNode(participants: participants, locationNodeId: edge.targetLocationNodeId) else {
+                errors.insert("Edge conects to a missing location node.")
                 continue
             }
             
             // Get values of edge to compare
             let sourceParticipant: String = sourceInfo.nodeName
-            let sourcePath: String = sourceInfo.patchName
+            // Single string
+            let sourcePath: String = sourceInfo.locationNodeNames.joined(separator: ",")
             let targetParticipant: String = targetInfo.nodeName
-            let targetPath: String = targetInfo.patchName
+            let targetPath: String = targetInfo.locationNodeNames.joined(separator: ",")
             let strength: String = edge.strength.rawValue
             let data: String = edge.data
             let dataType: String = edge.dataType?.rawValue ?? ""
@@ -116,7 +120,7 @@ struct TopologyGenerator {
             let edgeList: [String] = [sourceParticipant, sourcePath, targetParticipant, targetPath, strength, data, dataType]
             
             if edgeValues.contains(edgeList) {
-                errors.append("Duplicate edge between \(sourceParticipant) and \(targetParticipant).")
+                errors.insert("Duplicate edge between \(sourceParticipant) and \(targetParticipant).")
             }
             
             edgeValues.append(edgeList)

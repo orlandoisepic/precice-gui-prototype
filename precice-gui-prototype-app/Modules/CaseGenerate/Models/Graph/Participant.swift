@@ -7,7 +7,7 @@ struct Participant: Identifiable, Codable {
     var solver: String
     var dimensionality: ParticipantDimensionality? = nil
     var position: CGPoint
-    var patches: [Patch] = []
+    var locationNodes: [LocationNode] = []
     
     init(id: UUID = UUID(), name: String, solver: String = "", dimensionality: ParticipantDimensionality? = nil, position: CGPoint) {
         self.id = id
@@ -15,7 +15,7 @@ struct Participant: Identifiable, Codable {
         self.solver = solver
         self.dimensionality = dimensionality
         self.position = position
-        self.patches = []
+        self.locationNodes = []
     }
 }
 

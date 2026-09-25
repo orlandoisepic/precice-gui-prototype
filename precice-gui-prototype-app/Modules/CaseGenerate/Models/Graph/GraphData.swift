@@ -6,7 +6,6 @@
 //
 
 
-// Keep the Struct
 struct GraphData: Codable {
     let participants: [Participant]
     let edges: [Edge]
