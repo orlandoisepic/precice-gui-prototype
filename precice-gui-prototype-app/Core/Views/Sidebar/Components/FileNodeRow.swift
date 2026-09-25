@@ -102,8 +102,25 @@ struct FileNodeRow: View {
                 }
             }
             .draggable(ProjectManager.getURL(forProject: project).appendingPathComponent(node.path))
+                /// Copy files to dragged destination without allowing a recursive copying of ones self.
             .dropDestination(for: URL.self) { items, location in
                 guard node.isDirectory else { return false }
+                
+                    // 1. Calculate exactly where these files are trying to go
+                let destinationURL = ProjectManager.getURL(forProject: project).appendingPathComponent(node.path)
+                let destinationPath = destinationURL.path + "/"
+                
+                    // 2. Intercept any recursive paradoxes
+                for sourceURL in items {
+                    let sourcePath = sourceURL.path + "/"
+                    if destinationPath.hasPrefix(sourcePath) {
+                        print("Tried to copy folder into itself.")
+                        NSSound.beep() // error sound
+                        return false
+                    }
+                }
+                
+                    // 3. Safe to proceed
                 viewModel.importFiles(items, toProject: project, subPath: node.path)
                 return true
             }
