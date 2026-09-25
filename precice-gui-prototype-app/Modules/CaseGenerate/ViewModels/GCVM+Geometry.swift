@@ -283,15 +283,19 @@ extension GraphCanvasViewModel {
         }
         
             // Apply the calculated angles back to the location nodes
-        for info in infos {
-                // Animate to make it make it smooth
-            withAnimation(
-                .spring(
-                    response: self.nodeMovementResponse,
-                    dampingFraction: self.nodeMovementDamping
-                )
-            ) {
+        let isActivelyDragging = (draggingStartLocationNode != nil)
+        
+        if isActivelyDragging {
+                // Apply instantly during drag to reduce lag
+            for info in infos {
                 participants[index].locationNodes[info.index].angle = info.angle
+            }
+        } else {
+                // Animate to make it smooth once the drag is over
+            withAnimation(.spring(response: self.nodeMovementResponse, dampingFraction: self.nodeMovementDamping)) {
+                for info in infos {
+                    participants[index].locationNodes[info.index].angle = info.angle
+                }
             }
         }
     }
