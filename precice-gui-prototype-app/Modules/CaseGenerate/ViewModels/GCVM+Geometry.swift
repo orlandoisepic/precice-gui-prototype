@@ -219,7 +219,7 @@ extension GraphCanvasViewModel {
         
             // 4. Cluster and space out
         let clusterThreshold = 60.0 * .pi / 180.0 // How wide the net is to group them
-        let visualSpacing = 35.0 * .pi / 180.0    // How tightly they actually sit on the circle
+        let visualSpacing = 40.0 * .pi / 180.0    // How tightly they actually sit on the circle
         
         var i = 0
         while i < unwrappedInfos.count {
