@@ -96,7 +96,7 @@ extension GraphCanvasViewModel {
             var angle: Double
             let currentPhysicalAngle: Double
             let targetNodeId: String
-            let targetLocAbsolutePos: CGPoint? // 👈 NEW: The exact (x,y) of the target patch!
+            let targetLocAbsolutePos: CGPoint? // The exact (x,y) of the target location node
         }
         
         var infos: [LocationNodeAngleInfo] = []
@@ -106,14 +106,14 @@ extension GraphCanvasViewModel {
             let loc = locationNodes[i]
             var idealAngle = loc.angle
             var targetNodeId = ""
-            var targetLocAbsolutePos: CGPoint? = nil // 👈 Track the target
+            var targetLocAbsolutePos: CGPoint? = nil // Track the target
             
             if let draggingLocationNode = draggingStartLocationNode, draggingLocationNode.id == loc.id {
                 idealAngle = atan2(
                     draggingCurrentPos.y - node.position.y,
                     draggingCurrentPos.x - node.position.x
                 )
-                targetLocAbsolutePos = draggingCurrentPos // 👈 Use mouse position!
+                targetLocAbsolutePos = draggingCurrentPos // Use mouse position
             } else {
                 let connectedEdges = edges.filter {
                     $0.sourceLocationNodeId == loc.id || $0.targetLocationNodeId == loc.id
@@ -130,7 +130,7 @@ extension GraphCanvasViewModel {
                             otherNode.position.y - node.position.y,
                             otherNode.position.x - node.position.x
                         )
-                            // 👈 Get the EXACT physical (x,y) of the connected patch!
+                            // Get the exact coordinate of the connected location node
                         targetLocAbsolutePos = getLocationNodePosition(participant: otherNode, locationNode: otherLocNode)
                     }
                 }
@@ -193,25 +193,21 @@ extension GraphCanvasViewModel {
             
 
                 // Sort the cluster to mathematically prevent crossed edges
+                // Grab a stable anchor from the cluster so the math doesn't wrap around
+            let clusterAnchor = cluster.first!.angle
+            
             cluster.sort { a, b in
-                
                 func getAimDelta(for info: LocationNodeAngleInfo) -> Double {
-                        // If it's totally disconnected and not being dragged, keep it neutral
                     guard let targetPos = info.targetLocAbsolutePos else {
                         return 0
                     }
-                    
-                        // Angle from this participant to the exact target patch/mouse
                     let aimAngle = atan2(targetPos.y - node.position.y, targetPos.x - node.position.x)
-                    
-                        // Calculate relative difference from the bundle's center base angle
-                    return atan2(sin(aimAngle - info.angle), cos(aimAngle - info.angle))
+                    return atan2(sin(aimAngle - clusterAnchor), cos(aimAngle - clusterAnchor))
                 }
                 
                 let deltaA = getAimDelta(for: a)
                 let deltaB = getAimDelta(for: b)
                 
-                    // Fallback tie-breaker
                 if deltaA == deltaB {
                     return a.index < b.index
                 }
