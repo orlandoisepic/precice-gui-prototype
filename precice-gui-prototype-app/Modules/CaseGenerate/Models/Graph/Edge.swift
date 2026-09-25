@@ -14,7 +14,6 @@ struct Edge: Identifiable, Codable {
     var data: String            // "The data that is exchanged"
     var dataType: DataType?     // scalar or vector
     var strength: EdgeStrength  // "Weak" or "Strong"
-    var createdAt: Date = Date()
     
     init(id: UUID = UUID(),
          sourceLocationNodeId: UUID,
