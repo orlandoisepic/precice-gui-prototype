@@ -11,7 +11,6 @@ extension GraphCanvasViewModel {
     
         // MARK: - Position Helpers
     func getLocationNodePosition(participant: Participant, locationNode: LocationNode) -> CGPoint {
-            // Make sure this matches the ratio in LocationNodeRing!
         let orbitRadius = locationNode.type == .surface ? participantNodeRadius : (
             participantNodeRadius * self.locationNodeInnerRingRatio
         )
@@ -21,7 +20,7 @@ extension GraphCanvasViewModel {
         return CGPoint(x: x, y: y)
     }
     
-    /// Find the location node closest to the location, within the treshold
+        /// Find the location node closest to the location, within the treshold
     func findLocationNode(at location: CGPoint, excluding sourceLocationNodeId: UUID, threshold: CGFloat = 30) -> LocationNode? {
         
         var closestNode: LocationNode? = nil
@@ -36,9 +35,12 @@ extension GraphCanvasViewModel {
                     locationNode: locationNode
                 )
                 
-                let distance = hypot(locationNodePos.x - location.x, locationNodePos.y - location.y)
+                let distance = hypot(
+                    locationNodePos.x - location.x,
+                    locationNodePos.y - location.y
+                )
                 
-                    // Only update if it is closer than the previous closest node!
+                    // Only update if it is closer than the previous closest node
                 if distance < shortestDistance {
                     shortestDistance = distance
                     closestNode = locationNode
@@ -118,20 +120,63 @@ extension GraphCanvasViewModel {
                 let connectedEdges = edges.filter {
                     $0.sourceLocationNodeId == loc.id || $0.targetLocationNodeId == loc.id
                 }
-                if let firstEdge = connectedEdges.first {
-                    let otherLocId = (firstEdge.sourceLocationNodeId == loc.id) ? firstEdge.targetLocationNodeId : firstEdge.sourceLocationNodeId
-                    
-                    if let otherOwnerId = findOwnerOfLocationNode(otherLocId),
-                       let otherNode = participants.first(where: { $0.id == otherOwnerId }),
-                       let otherLocNode = otherNode.locationNodes.first(where: { $0.id == otherLocId }) {
-                        
-                        targetNodeId = otherOwnerId.uuidString
-                        idealAngle = atan2(
-                            otherNode.position.y - node.position.y,
-                            otherNode.position.x - node.position.x
+    
+                if !connectedEdges.isEmpty {
+                    var sumVectorX: Double = 0
+                    var sumVectorY: Double = 0
+                    var validTargets = 0
+                    var primaryTargetId = ""
+        
+                    for edge in connectedEdges {
+                        let otherLocId = (
+                            edge.sourceLocationNodeId == loc.id
+                        ) ? edge.targetLocationNodeId : edge.sourceLocationNodeId
+            
+                        if let otherOwnerId = findOwnerOfLocationNode(
+                            otherLocId
+                        ),
+                           let otherNode = participants.first(
+                            where: { $0.id == otherOwnerId
+                            }),
+                           let otherLocNode = otherNode.locationNodes.first(where: { $0.id == otherLocId }) {
+                
+                                // Keep the first target ID for grouping purposes
+                            if primaryTargetId.isEmpty {
+                                primaryTargetId = otherOwnerId.uuidString
+                            }
+                
+                            let targetPos = getLocationNodePosition(
+                                participant: otherNode,
+                                locationNode: otherLocNode
+                            )
+                
+                                // Calculate the direction vector
+                            let dx = targetPos.x - node.position.x
+                            let dy = targetPos.y - node.position.y
+                            let distance = max(
+                                hypot(dx, dy),
+                                1.0
+                            ) // Prevent division by zero
+                
+                                // Normalize the vector (so its length is exactly 1) and add it to our sum
+                            sumVectorX += dx / distance
+                            sumVectorY += dy / distance
+                
+                            validTargets += 1
+                        }
+                    }
+        
+                    if validTargets > 0 {
+                        targetNodeId = primaryTargetId
+            
+                            // The new ideal angle is exactly the average of all the direction vectors
+                        idealAngle = atan2(sumVectorY, sumVectorX)
+            
+                            // For the sorting algorithm, we project a "phantom" target point in that exact direction
+                        targetLocAbsolutePos = CGPoint(
+                            x: node.position.x + sumVectorX,
+                            y: node.position.y + sumVectorY
                         )
-                            // Get the exact coordinate of the connected location node
-                        targetLocAbsolutePos = getLocationNodePosition(participant: otherNode, locationNode: otherLocNode)
                     }
                 }
             }
@@ -203,8 +248,14 @@ extension GraphCanvasViewModel {
                     guard let targetPos = info.targetLocAbsolutePos else {
                         return 0
                     }
-                    let aimAngle = atan2(targetPos.y - node.position.y, targetPos.x - node.position.x)
-                    return atan2(sin(aimAngle - clusterAnchor), cos(aimAngle - clusterAnchor))
+                    let aimAngle = atan2(
+                        targetPos.y - node.position.y,
+                        targetPos.x - node.position.x
+                    )
+                    return atan2(
+                        sin(aimAngle - clusterAnchor),
+                        cos(aimAngle - clusterAnchor)
+                    )
                 }
                 
                 let deltaA = getAimDelta(for: a)
@@ -220,7 +271,9 @@ extension GraphCanvasViewModel {
                 // Apply spacing offsets
             for (k, info) in cluster.enumerated() {
                     // Use visualSpacing to calculate the actual physical layout
-                let offset = (Double(k) - (Double(cluster.count) - 1.0)/2.0) * visualSpacing
+                let offset = (
+                    Double(k) - (Double(cluster.count) - 1.0)/2.0
+                ) * visualSpacing
                 
                 if let originalIndex = infos.firstIndex(where: { $0.index == info.index }) {
                     infos[originalIndex].angle = avg + offset
@@ -231,8 +284,13 @@ extension GraphCanvasViewModel {
         
             // Apply the calculated angles back to the location nodes
         for info in infos {
-            // Animate to make it make it smooth
-            withAnimation(.spring(response: self.nodeMovementResponse, dampingFraction: self.nodeMovementDamping)) {
+                // Animate to make it make it smooth
+            withAnimation(
+                .spring(
+                    response: self.nodeMovementResponse,
+                    dampingFraction: self.nodeMovementDamping
+                )
+            ) {
                 participants[index].locationNodes[info.index].angle = info.angle
             }
         }
