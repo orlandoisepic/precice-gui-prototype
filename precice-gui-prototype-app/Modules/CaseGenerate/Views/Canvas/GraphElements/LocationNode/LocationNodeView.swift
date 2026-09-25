@@ -71,14 +71,7 @@ struct LocationNodeView: View {
                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
         } else {
                 // Volume view
-            Circle()
-                .fill(
-                    isDeleting ? Color.white.gradient : locationNodeColor.gradient
-                )
-                .overlay(
-                    Circle().strokeBorder(.white, lineWidth: lineWidth)
-                )
-                .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+            VolumeNodeView(nodeColor: locationNodeColor, size: viewModel.locationNodeRadius * 2, lineWidth: lineWidth)
         }
             
     }
