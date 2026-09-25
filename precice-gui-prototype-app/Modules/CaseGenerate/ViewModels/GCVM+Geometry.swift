@@ -173,16 +173,18 @@ extension GraphCanvasViewModel {
         }
         
             // 4. Cluster and space out
-        let minSpacing = 40.0 * .pi / 180.0
-        var i = 0
+        let clusterThreshold = 60.0 * .pi / 180.0 // How wide the net is to group them
+        let visualSpacing = 35.0 * .pi / 180.0    // How tightly they actually sit on the circle
         
+        var i = 0
         while i < unwrappedInfos.count {
             var cluster = [unwrappedInfos[i]]
             var sumAngle = unwrappedInfos[i].angle
             var j = i + 1
             
             while j < unwrappedInfos.count {
-                if abs(unwrappedInfos[j].angle - unwrappedInfos[j-1].angle) < minSpacing {
+                    // Use clusterThreshold to decide if they belong together
+                if abs(unwrappedInfos[j].angle - unwrappedInfos[j-1].angle) < clusterThreshold {
                     cluster.append(unwrappedInfos[j])
                     sumAngle += unwrappedInfos[j].angle
                     j += 1
@@ -217,9 +219,8 @@ extension GraphCanvasViewModel {
             
                 // Apply spacing offsets
             for (k, info) in cluster.enumerated() {
-                let offset = (
-                    Double(k) - (Double(cluster.count) - 1.0)/2.0
-                ) * minSpacing
+                    // Use visualSpacing to calculate the actual physical layout
+                let offset = (Double(k) - (Double(cluster.count) - 1.0)/2.0) * visualSpacing
                 
                 if let originalIndex = infos.firstIndex(where: { $0.index == info.index }) {
                     infos[originalIndex].angle = avg + offset
