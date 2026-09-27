@@ -16,7 +16,7 @@ extension ParticipantNodeView {
         }
     }
     
-    func addLocationNodeAtMouseLocation() {
+    func addLocationNodeAtMouseLocation(type: LocationType) {
         let center = CGPoint(
             x: viewModel.participantNodeRadius,
             y: viewModel.participantNodeRadius
@@ -25,7 +25,9 @@ extension ParticipantNodeView {
         let dy = lastMousePosition.y - center.y
         let angle = atan2(dy, dx)
         
-        viewModel.addLocationNode(to: participant.id, angle: angle)
+        //DispatchQueue.main.async {
+        viewModel.addLocationNode(to: participant.id, angle: angle, type: type)
+        //}
     }
     
     func handleDeletion() {

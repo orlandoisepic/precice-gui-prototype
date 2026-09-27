@@ -3,12 +3,16 @@ import SwiftUI
 struct NodeDimensionalityBadge: View {
     let dimensionality: ParticipantDimensionality?
     @ObservedObject var viewModel: GraphCanvasViewModel
+    @State var isHovering: Bool = false
+    
+    var onUpdate: (ParticipantDimensionality?) -> Void
     
         // This remembers the layout footprint so the ZStack never shrinks and slides when dimensionality becomes nil
     @State private var ghostLabel: String = "2D"
     @State private var ghostColor: Color = .blue
     
     var body: some View {
+        let hoverScale = 1.2
         let diameter = viewModel.participantDimensionalityBadgeRadius * 2
         let warningDiameter = diameter * 0.8
         
@@ -28,7 +32,7 @@ struct NodeDimensionalityBadge: View {
                 .frame(minWidth: diameter, minHeight: diameter)
                 // Visible only if dimensionality is not given
                 .opacity(dimensionality == nil ? 1.0 : 0.0)
-                .scaleEffect(dimensionality == nil ? 1.0 : 0.5)
+                //.scaleEffect(dimensionality == nil ? 1.0 : 0.5)
             
                 // Dimensionality given
             Text(label)
@@ -60,5 +64,26 @@ struct NodeDimensionalityBadge: View {
                 ghostColor = newDim.color
             }
         }
+        .overlay{
+                Menu {
+                    Button("2D") { onUpdate(.twoD) }
+                    Button("3D") { onUpdate(.threeD) }
+                    Divider()
+                    Button("Default") { onUpdate(nil) }
+                } label : {
+                        // Empty label to force a large enough click area
+                    Text("     ")
+                }
+                .menuStyle(.borderlessButton)
+                .menuIndicator(.hidden)
+                .buttonStyle(.plain)
+        }
+        .onHover { hover in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovering = hover
+            }
+        }
+        .scaleEffect(isHovering ? hoverScale : 1.0)
+        .help("Click to set participant dimensionality.")
     }
 }

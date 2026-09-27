@@ -76,7 +76,7 @@ extension GraphCanvasViewModel {
     }
     
         // MARK: - LocationNodes
-    func addLocationNode(to participantId: UUID, angle: Double) {
+    func addLocationNode(to participantId: UUID, angle: Double, type: LocationType) {
         guard let index = participants.firstIndex(where: { $0.id == participantId }) else {
             return
         }
@@ -84,7 +84,8 @@ extension GraphCanvasViewModel {
             id: UUID(),
             names: ["Port"],
             angle: angle,
-            parentId: participantId
+            parentId: participantId,
+            type: type
         )
         participants[index].locationNodes.append(newLocationNode)
         triggerAutoSave()

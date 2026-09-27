@@ -10,7 +10,9 @@ struct ParticipantNodeView: View {
     @State var isDeleting = false
     @State private var badgeTrigger = false
     
-    @AppStorage("fancyAnimationsEnabled") private var fancyAnimationsEnabled: Bool = true
+    @AppStorage(
+        "fancyAnimationsEnabled"
+    ) private var fancyAnimationsEnabled: Bool = true
 
         // Slighly lighter blue for light mode
     var nodeColor: Color {
@@ -29,7 +31,7 @@ struct ParticipantNodeView: View {
             return .black
         }
     }
-    // How long the "death" effect takes
+        // How long the "death" effect takes
     var delay: Double {fancyAnimationsEnabled ? 0.4 : 0.1}
     
     var body: some View {
@@ -48,14 +50,26 @@ struct ParticipantNodeView: View {
                     }
                 }
                 .overlay(alignment: .topTrailing) {
-                    NodeDimensionalityBadge(dimensionality: participant.dimensionality, viewModel: viewModel)
-                        .offset(x: dimensionalityBadgeOffset, y: -dimensionalityBadgeOffset)
-                        .modifier(PopupAnimation(response: 0.4, damping: 0.5))
+                    NodeDimensionalityBadge(
+                        dimensionality: participant.dimensionality,
+                        viewModel: viewModel,
+                        onUpdate: {
+                            dim in updateDimension(dim)
+                        }
+                    )
+                    .offset(
+                        x: dimensionalityBadgeOffset,
+                        y: -dimensionalityBadgeOffset
+                    )
+                    .modifier(PopupAnimation(response: 0.4, damping: 0.5))
                 }
                 // The icon and solver name
             NodeInterior(solver: $participant.solver)
                 // Name tag
-            NodeNameTag(name: $participant.name, nodeRadius: viewModel.participantNodeRadius)
+            NodeNameTag(
+                name: $participant.name,
+                nodeRadius: viewModel.participantNodeRadius
+            )
         }
         .frame(
             // Slighly larger hit area
@@ -65,7 +79,9 @@ struct ParticipantNodeView: View {
         .modifier(PopupAnimation(response: 0.35, damping: 0.45))
             // Implosion delete effect
         .scaleEffect(isDeleting ? (fancyAnimationsEnabled ? 0.01 : 0.95) : 1.0)
-        .rotationEffect(Angle(degrees: (isDeleting && fancyAnimationsEnabled) ? 360 : 0))
+        .rotationEffect(
+            Angle(degrees: (isDeleting && fancyAnimationsEnabled) ? 360 : 0)
+        )
         .opacity(isDeleting ? 0.0 : 1.0)
         .animation(.easeInOut(duration: delay), value: isDeleting)
         .onChange(of: viewModel.dyingParticipantIDs) { _, dyingSet in
@@ -76,8 +92,7 @@ struct ParticipantNodeView: View {
         
         .contextMenu {
             ParticipantContextMenu(
-                currentDimensionality: participant.dimensionality,
-                onAddLocationNode: {addLocationNodeAtMouseLocation()},
+                onAddLocationNode: {type in addLocationNodeAtMouseLocation(type: type)},
                 onUpdateDimension: {dim in updateDimension(dim)},
                 onDelete: {handleDeletion()}
             )

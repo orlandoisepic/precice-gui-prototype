@@ -9,16 +9,21 @@
 import SwiftUI
 
 struct ParticipantContextMenu: View {
-    let currentDimensionality: ParticipantDimensionality?
-    
     // Actions passed from parent
-    var onAddLocationNode: () -> Void
+    var onAddLocationNode: (LocationType) -> Void
     var onUpdateDimension: (ParticipantDimensionality?) -> Void
     var onDelete: () -> Void
     
     var body: some View {
-        Button("Add location") {
-            onAddLocationNode()
+        // Menu to add volume node
+        Menu {
+            Button("Surface") { onAddLocationNode(.surface) }
+            Button("Volume") { onAddLocationNode(.volume) }
+            Divider()
+            // The default type is surface
+            Button("Default") { onAddLocationNode(.surface) }
+        } label: {
+            Label("Add location...", systemImage: "plus.circle")
         }
         
         Divider()
@@ -27,9 +32,10 @@ struct ParticipantContextMenu: View {
             Button("2D") {onUpdateDimension(.twoD)}
             Button("3D") {onUpdateDimension(.threeD)}
             Divider()
+            // Remove the dimensionality. A default is selected in the executable
             Button("Default") {onUpdateDimension(nil)}
         } label: {
-            Label("Set dimensionality", systemImage: "square.and.pencil")
+            Label("Set dimensionality...", systemImage: "square.and.pencil")
         }
         
         Divider()
