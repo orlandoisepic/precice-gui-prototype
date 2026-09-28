@@ -21,9 +21,11 @@ struct NodeInterior: View {
                 .textFieldStyle(.plain)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white)
-                .frame(width: max(min(100, 12 + CGFloat(solver.count) * 8), 60))
+                .fixedSize()
+                .padding(.horizontal, 4)
+                .padding(.vertical, 2)
                 .background(Color.black.opacity(0.2))
-                .cornerRadius(8)
+                .cornerRadius(15)
         }
     }
 }

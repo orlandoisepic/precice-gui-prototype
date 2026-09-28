@@ -89,7 +89,7 @@ struct LocationNodeView: View {
                 .multilineTextAlignment(.center)
                 .padding(2)
                 .background(.ultraThinMaterial)
-                .cornerRadius(8)
+                .cornerRadius(10)
                 .fixedSize()
                 .offset(y: -(viewModel.locationNodeRadius + 10)) // Radius 25/2 -> -22.5, Radius 50/2 -> -35
                 .onAppear {
