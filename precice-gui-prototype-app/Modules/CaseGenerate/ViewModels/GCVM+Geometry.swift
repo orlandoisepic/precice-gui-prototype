@@ -64,11 +64,10 @@ extension GraphCanvasViewModel {
     func updateDynamicLocationNodeAngles(for centerNodeId: UUID) {
         updateAnglesForNode(centerNodeId)
         
-            // Find connected neighbors
-        let connectedEdges = edges.filter {
-            let s = findOwnerOfLocationNode($0.sourceLocationNodeId)
-            let t = findOwnerOfLocationNode($0.targetLocationNodeId)
-            return s == centerNodeId || t == centerNodeId
+        guard let centerNode = participants.first(where: { $0.id == centerNodeId }) else { return }
+        var connectedEdges: [Edge] = []
+        for loc in centerNode.locationNodes {
+            connectedEdges.append(contentsOf: edgeCache[loc.id] ?? [])
         }
         
         var neighborIds = Set<UUID>()
@@ -117,9 +116,7 @@ extension GraphCanvasViewModel {
                 )
                 targetLocAbsolutePos = draggingCurrentPos // Use mouse position
             } else {
-                let connectedEdges = edges.filter {
-                    $0.sourceLocationNodeId == loc.id || $0.targetLocationNodeId == loc.id
-                }
+                let connectedEdges = edgeCache[loc.id] ?? []
     
                 if !connectedEdges.isEmpty {
                     var sumVectorX: Double = 0
@@ -282,22 +279,11 @@ extension GraphCanvasViewModel {
             i = j
         }
         
-            // Apply the calculated angles back to the location nodes
-        let isActivelyDragging = (draggingStartLocationNode != nil)
-        
-        if isActivelyDragging {
-                // Apply instantly during drag to reduce lag
-            for info in infos {
-                participants[index].locationNodes[info.index].angle = info.angle
-            }
-        } else {
-                // Animate to make it smooth once the drag is over
-            withAnimation(.spring(response: self.nodeMovementResponse, dampingFraction: self.nodeMovementDamping)) {
-                for info in infos {
-                    participants[index].locationNodes[info.index].angle = info.angle
-                }
-            }
+        // Apply the calculated angles back to the location nodes
+        for info in infos {
+            participants[index].locationNodes[info.index].angle = info.angle
         }
+        
     }
     
     private func calculateBestAngleForLocationNode(_ locationNode: LocationNode, on node: Participant) -> Double? {
@@ -308,9 +294,7 @@ extension GraphCanvasViewModel {
             return atan2(dy, dx)
         }
         
-        let connectedEdges = edges.filter {
-            $0.sourceLocationNodeId == locationNode.id || $0.targetLocationNodeId == locationNode.id
-        }
+        let connectedEdges = edgeCache[locationNode.id] ?? []
         if connectedEdges.isEmpty { return nil }
         
         var sumX: Double = 0; var sumY: Double = 0

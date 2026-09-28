@@ -31,6 +31,13 @@ struct LocationNodeRing: View {
                 LocationNodeView(locationNode: $locationNode, parentID: parentID, viewModel: viewModel)
                     .position(x: xPos, y: yPos)
                     .modifier(PopupAnimation(response: 0.3, damping: 0.5))
+                    .animation(
+                        .interactiveSpring(
+                            response: viewModel.nodeMovementResponse,
+                            dampingFraction: viewModel.nodeMovementDamping
+                        ),
+                        value: locationNode.angle
+                    )
             }
         }
         .frame(width: viewModel.participantNodeRadius * 2, height: viewModel.participantNodeRadius * 2)

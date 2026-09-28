@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct LocationNode: Identifiable, Codable {
+struct LocationNode: Identifiable, Codable, Equatable {
     let id: UUID
     var names: [String]
     var angle: Double

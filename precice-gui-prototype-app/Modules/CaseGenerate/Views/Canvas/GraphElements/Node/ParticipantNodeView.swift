@@ -43,7 +43,6 @@ struct ParticipantNodeView: View {
                 .overlay(
                     Circle().stroke(nodeColor.opacity(0.5), lineWidth: 2)
                 )
-                .shadow(radius: 5)
                 .onContinuousHover { phase in
                     if case .active(let location) = phase {
                         self.lastMousePosition = location
@@ -89,7 +88,7 @@ struct ParticipantNodeView: View {
                 withAnimation { isDeleting = true }
             }
         }
-        
+        .shadow(radius: 5)
         .contextMenu {
             ParticipantContextMenu(
                 onAddLocationNode: {type in addLocationNodeAtMouseLocation(type: type)},

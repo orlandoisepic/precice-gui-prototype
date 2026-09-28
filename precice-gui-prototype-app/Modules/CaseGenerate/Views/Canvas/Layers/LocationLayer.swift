@@ -1,9 +1,9 @@
-//
-//  LocationLayer.swift
-//  precice-gui-prototype
-//
-//  Created by Orlando Ackermann on 21.09.26.
-//
+    //
+    //  LocationLayer.swift
+    //  precice-gui-prototype
+    //
+    //  Created by Orlando Ackermann on 21.09.26.
+    //
 import SwiftUI
 
 struct LocationLayer: View {
@@ -17,8 +17,15 @@ struct LocationLayer: View {
                     parentID: participant.id,
                     viewModel: viewModel
                 )
-                // Ensure the location node follows the participant node
+                    // Ensure the location node follows the participant node
                 .position(participant.position)
+                .animation(
+                    .interactiveSpring(
+                        response: viewModel.nodeMovementResponse,
+                        dampingFraction: viewModel.nodeMovementDamping
+                    ),
+                    value: participant.position
+                )
             }
         }
     }

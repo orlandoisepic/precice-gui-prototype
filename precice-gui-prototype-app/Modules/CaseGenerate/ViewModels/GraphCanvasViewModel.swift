@@ -4,7 +4,14 @@ import Combine
 class GraphCanvasViewModel: ObservableObject {
         // MARK: - Core Data
     @Published var participants: [Participant] = []
-    @Published var edges: [Edge] = []
+    @Published var edges: [Edge] = [] {
+        didSet {
+            rebuildEdgeCache()
+        }
+    }
+    
+    // A lookup table for edges
+    var edgeCache: [UUID: [Edge]] = [:]
     
         // MARK: - State Management
     @Published var currentProjectName: String? = nil
@@ -32,7 +39,7 @@ class GraphCanvasViewModel: ObservableObject {
     let locationNodeHitThreshold: CGFloat = 40
     let locationNodeInnerRingRatio: CGFloat = 0.675 // The relative distance from center to inner ring (volume location nodes live on the inner ring)
     // Parameters for moving nodes with .withAnimation(.interactiveSpring(response: , dampingFraction: )
-    let nodeMovementResponse: CGFloat = 0.3
+    let nodeMovementResponse: CGFloat = 0.35
     let nodeMovementDamping: CGFloat = 0.6
     
         // MARK: - File system management
@@ -58,14 +65,26 @@ class GraphCanvasViewModel: ObservableObject {
             }
         }
         
-            // 3. Start watching!
+            // 3. Start watching
         workspaceMonitor?.startMonitoring()
+            // Build the edge cache
+        rebuildEdgeCache()
     }
         
         // TODO: This should probably be under Core/
         // Always stop monitoring when the ViewModel is destroyed to save system resources
     deinit {
         workspaceMonitor?.stopMonitoring()
+    }
+    
+    // (Re)build the edge dictionary
+    private func rebuildEdgeCache() {
+        var newCache: [UUID: [Edge]] = [:]
+        for edge in edges {
+            newCache[edge.sourceLocationNodeId, default: []].append(edge)
+            newCache[edge.targetLocationNodeId, default: []].append(edge)
+        }
+        edgeCache = newCache
     }
     
         // Helper to reset view
